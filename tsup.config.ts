@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    browser: 'src/browser-entry.ts',
+    isomorphic: 'src/isomorphic-entry.ts',
+  },
   format: ['cjs', 'esm'],
   dts: true,
   sourcemap: true,

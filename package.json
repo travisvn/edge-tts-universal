@@ -1,7 +1,7 @@
 {
   "name": "edge-tts-universal",
   "version": "1.0.3",
-  "description": "Use Microsoft Edge's online text-to-speech service in Node.js WITHOUT needing Microsoft Edge or Windows or an API key",
+  "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -15,6 +15,26 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "require": {
+        "types": "./dist/browser.d.cts",
+        "default": "./dist/browser.cjs"
+      }
+    },
+    "./isomorphic": {
+      "import": {
+        "types": "./dist/isomorphic.d.ts",
+        "default": "./dist/isomorphic.js"
+      },
+      "require": {
+        "types": "./dist/isomorphic.d.cts",
+        "default": "./dist/isomorphic.cjs"
       }
     }
   },
@@ -31,13 +51,25 @@
   "keywords": [
     "text-to-speech",
     "tts",
-    "edge-tts"
+    "edge-tts",
+    "speech-synthesis",
+    "microsoft-edge",
+    "universal",
+    "isomorphic",
+    "browser",
+    "nodejs",
+    "cross-platform",
+    "speech",
+    "voice",
+    "audio",
+    "ssml",
+    "subtitles"
   ],
   "author": "Travis <contact@travis.engineer> (https://travis.engineer)",
   "license": "AGPL-3.0",
-  "homepage": "https://github.com/travisvn/edge-tts",
+  "homepage": "https://github.com/travisvn/edge-tts-universal",
   "bugs": {
-    "url": "https://github.com/travisvn/edge-tts/issues"
+    "url": "https://github.com/travisvn/edge-tts-universal/issues"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -64,6 +96,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/travisvn/edge-tts.git"
+    "url": "git+https://github.com/travisvn/edge-tts-universal.git"
   }
 }

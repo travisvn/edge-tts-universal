@@ -1,12 +1,12 @@
+// Node.js-specific API (uses axios, Node.js crypto, etc.)
 export { Communicate, CommunicateOptions } from './communicate';
 export { SubMaker } from './submaker';
 export { VoicesManager, listVoices } from './voices';
-export * from './exceptions';
-export * from './types';
-// Simple API (compatible with code (54).ts)
+
+// Simple API (works in both Node.js and browsers when using appropriate exports)
 export { EdgeTTS, ProsodyOptions, WordBoundary, SynthesisResult, createVTT, createSRT } from './simple';
 
-// Isomorphic API (works in both Node.js and browsers)
+// Universal/Isomorphic API (works in both Node.js and browsers)
 export {
   IsomorphicCommunicate,
   IsomorphicCommunicateOptions
@@ -16,4 +16,18 @@ export {
   listVoices as listVoicesIsomorphic,
   FetchError
 } from './isomorphic-voices';
-export { IsomorphicDRM } from './isomorphic-drm'; 
+export { IsomorphicDRM } from './isomorphic-drm';
+
+// Browser-specific API (uses native browser APIs only)
+export {
+  EdgeTTSBrowser,
+  ProsodyOptions as BrowserProsodyOptions,
+  WordBoundary as BrowserWordBoundary,
+  SynthesisResult as BrowserSynthesisResult,
+  createVTT as createVTTBrowser,
+  createSRT as createSRTBrowser
+} from './browser';
+
+// Common types and exceptions
+export * from './exceptions';
+export * from './types'; 

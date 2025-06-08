@@ -25,17 +25,8 @@ import { DEFAULT_VOICE, WSS_URL, WSS_HEADERS, SEC_MS_GEC_VERSION } from './const
 import { DRM } from './drm';
 import { AxiosError } from 'axios';
 
-// Conditionally import Node.js-specific packages - only available in Node.js
+// HttpsProxyAgent will be imported dynamically when needed
 let HttpsProxyAgent: any;
-try {
-  // This will only work in Node.js environments
-  if (typeof window === 'undefined') {
-    const proxyModule = await import('https-proxy-agent');
-    HttpsProxyAgent = proxyModule.HttpsProxyAgent;
-  }
-} catch (e) {
-  // Browser environment or module not available
-}
 
 /**
  * Configuration options for the Communicate class.
@@ -138,7 +129,18 @@ export class Communicate {
 
     let agent: any;
     if (this.proxy) {
-      agent = new HttpsProxyAgent(this.proxy);
+      // Import HttpsProxyAgent dynamically only when needed
+      if (!HttpsProxyAgent) {
+        try {
+          const proxyModule = await import('https-proxy-agent');
+          HttpsProxyAgent = proxyModule.HttpsProxyAgent;
+        } catch (e) {
+          console.warn('https-proxy-agent not available:', e);
+        }
+      }
+      if (HttpsProxyAgent) {
+        agent = new HttpsProxyAgent(this.proxy);
+      }
     }
 
     const websocket = new WebSocket(url, {

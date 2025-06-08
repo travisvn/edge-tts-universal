@@ -3,9 +3,18 @@
 [![API Documentation](https://img.shields.io/badge/API-Documentation-blue)](./API.md)
 [![npm](https://img.shields.io/npm/v/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
 
-This is a Node.js TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from within your Node.js applications.
+This is a **universal** TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from **Node.js, browsers, and any JavaScript environment**.
 
-This package provides high fidelity to the original, replicating the specific headers and WebSocket communication necessary to interact with the service.
+## 🌟 Universal Features
+
+- **🚀 Multiple Entry Points**: Choose between Node.js, browser, or isomorphic APIs
+- **🌐 Cross-Platform**: Works in Node.js, browsers, Deno, Bun, and edge runtimes
+- **📦 Tree-Shakable**: Import only what you need for optimal bundle size
+- **🔄 Isomorphic**: Same API works across all environments
+- **⚡ Zero Dependencies**: Browser builds have no external dependencies
+- **🛡️ Type Safe**: Full TypeScript support with comprehensive type definitions
+
+This package provides high fidelity to the original Python implementation, replicating the specific headers and WebSocket communication necessary to interact with Microsoft's service.
 
 ## Installation
 
@@ -13,6 +22,32 @@ This package provides high fidelity to the original, replicating the specific he
 npm install edge-tts-universal
 # or
 yarn add edge-tts-universal
+```
+
+## Universal Usage
+
+This package provides three usage patterns for maximum compatibility:
+
+### 📦 Default Import (Node.js + Isomorphic APIs)
+
+```typescript
+import {
+  EdgeTTS,
+  Communicate,
+  IsomorphicCommunicate,
+} from 'edge-tts-universal';
+```
+
+### 🌐 Browser-Only Import (No Node.js dependencies)
+
+```typescript
+import { EdgeTTS, Communicate } from 'edge-tts-universal/browser';
+```
+
+### 🚀 Isomorphic-Only Import (Universal compatibility)
+
+```typescript
+import { EdgeTTS, Communicate } from 'edge-tts-universal/isomorphic';
 ```
 
 ## Quick Start
