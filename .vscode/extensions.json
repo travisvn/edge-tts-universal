@@ -1,13 +1,13 @@
-{
-  "recommendations": [
-    "ms-vscode.vscode-typescript-next",
-    "esbenp.prettier-vscode",
-    "ms-vscode.vscode-eslint",
-    "bradlc.vscode-tailwindcss",
-    "ms-vscode.vscode-json",
-    "redhat.vscode-yaml",
-    "ms-vscode.vscode-markdown",
-    "denoland.vscode-deno",
-    "oven.bun-vscode"
-  ]
-}
+// {
+//   "recommendations": [
+//     "ms-vscode.vscode-typescript-next",
+//     "esbenp.prettier-vscode",
+//     "ms-vscode.vscode-eslint",
+//     "bradlc.vscode-tailwindcss",
+//     "ms-vscode.vscode-json",
+//     "redhat.vscode-yaml",
+//     "ms-vscode.vscode-markdown",
+//     "denoland.vscode-deno",
+//     "oven.bun-vscode"
+//   ]
+// }
