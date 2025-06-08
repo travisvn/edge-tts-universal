@@ -2,9 +2,11 @@
 
 [![API Documentation](https://img.shields.io/badge/API-Documentation-blue)](./API.md)
 [![npm](https://img.shields.io/npm/v/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
+[![JSR](https://jsr.io/badges/@edge-tts/universal)](https://jsr.io/@edge-tts/universal)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/edge-tts-universal)](https://bundlephobia.com/package/edge-tts-universal)
 [![Downloads](https://img.shields.io/npm/dm/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
 [![Tree Shaking](https://img.shields.io/badge/tree%20shaking-✓-green)](#bundle-optimization)
+[![JSR Score](https://jsr.io/badges/@edge-tts/universal/score)](https://jsr.io/@edge-tts/universal)
 
 This is a **universal** TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from **Node.js, browsers, and any JavaScript environment**.
 
