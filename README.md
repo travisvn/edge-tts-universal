@@ -1,4 +1,4 @@
-# edge-tts (Node.js)
+# Edge TTS Universal 🪐
 
 [![API Documentation](https://img.shields.io/badge/API-Documentation-blue)](./API.md)
 [![npm](https://img.shields.io/npm/v/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
