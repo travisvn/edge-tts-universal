@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.travisvn.com/edge-tts/communicate-options.json",
+  "title": "CommunicateOptions",
+  "description": "Configuration options for the Communicate class",
+  "type": "object",
+  "properties": {
+    "voice": {
+      "type": "string",
+      "description": "Voice to use for synthesis",
+      "default": "en-US-EmmaMultilingualNeural",
+      "examples": ["en-US-EmmaMultilingualNeural", "en-GB-SoniaNeural"]
+    },
+    "rate": {
+      "type": "string",
+      "description": "Speech rate adjustment",
+      "pattern": "^[+-]\\d+%$",
+      "default": "+0%",
+      "examples": ["+20%", "-10%", "+0%"]
+    },
+    "volume": {
+      "type": "string",
+      "description": "Volume level adjustment",
+      "pattern": "^[+-]\\d+%$",
+      "default": "+0%",
+      "examples": ["+50%", "-25%", "+0%"]
+    },
+    "pitch": {
+      "type": "string",
+      "description": "Pitch adjustment in Hz",
+      "pattern": "^[+-]\\d+Hz$",
+      "default": "+0Hz",
+      "examples": ["+5Hz", "-10Hz", "+0Hz"]
+    },
+    "proxy": {
+      "type": "string",
+      "description": "Proxy URL for requests",
+      "format": "uri",
+      "examples": ["http://proxy:8080", "https://user:pass@proxy:3128"]
+    },
+    "connectionTimeout": {
+      "type": "number",
+      "description": "WebSocket connection timeout in milliseconds",
+      "minimum": 0,
+      "examples": [10000, 30000]
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge TTS Browser Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .controls {
+        margin-bottom: 20px;
+      }
+
+      .controls > * {
+        margin: 10px 0;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        padding: 8px;
+        margin: 5px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 100px;
+      }
+
+      .warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      .error {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+
+      .success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+
+      .subtitles {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Edge TTS Browser Example</h1>
+
+    <div class="warning">
+      <strong>⚠️ CORS Warning:</strong> This example will likely fail due to
+      CORS policy. Microsoft's TTS service is designed for Edge extensions, not
+      general web use. To use this in production, you would need:
+      <ul>
+        <li>A proxy server on your backend</li>
+        <li>Microsoft to allow your domain (unlikely)</li>
+        <li>Deploy as a browser extension</li>
+      </ul>
+    </div>
+
+    <div class="controls">
+      <div>
+        <label for="text">Text to synthesize:</label>
+        <textarea id="text" placeholder="Enter text to convert to speech...">
+Hello, this is a test of browser-based text-to-speech synthesis!</textarea
+        >
+      </div>
+
+      <div>
+        <label for="voice">Voice:</label>
+        <select id="voice">
+          <option
+            value="Microsoft Server Speech Text to Speech Voice (en-US, EmmaMultilingualNeural)"
+          >
+            Emma (US English)
+          </option>
+          <option
+            value="Microsoft Server Speech Text to Speech Voice (en-US, JennyNeural)"
+          >
+            Jenny (US English)
+          </option>
+          <option
+            value="Microsoft Server Speech Text to Speech Voice (en-GB, SoniaNeural)"
+          >
+            Sonia (British English)
+          </option>
+          <option
+            value="Microsoft Server Speech Text to Speech Voice (fr-FR, DeniseNeural)"
+          >
+            Denise (French)
+          </option>
+          <option
+            value="Microsoft Server Speech Text to Speech Voice (de-DE, KatjaNeural)"
+          >
+            Katja (German)
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label for="rate">Rate:</label>
+        <input type="text" id="rate" value="+0%" placeholder="+0%" />
+
+        <label for="pitch">Pitch:</label>
+        <input type="text" id="pitch" value="+0Hz" placeholder="+0Hz" />
+
+        <label for="volume">Volume:</label>
+        <input type="text" id="volume" value="+0%" placeholder="+0%" />
+      </div>
+
+      <button onclick="synthesizeSpeech()">Generate Speech</button>
+    </div>
+
+    <div id="status"></div>
+    <div id="audio-container"></div>
+    <div id="subtitles-container"></div>
+
+    <script>
+      /**
+       * Browser-compatible Edge TTS implementation
+       * Note: This will likely fail due to CORS policy
+       */
+      class EdgeTTSBrowser {
+        constructor(text, voice, options = {}) {
+          this.text = text;
+          this.voice = voice;
+          this.rate = options.rate || '+0%';
+          this.volume = options.volume || '+0%';
+          this.pitch = options.pitch || '+0Hz';
+
+          this.ws = null;
+          this.WSS_URL =
+            'wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
+          this.TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
+        }
+
+        async synthesize() {
+          await this.connect();
+
+          if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+            throw new Error('WebSocket is not connected.');
+          }
+
+          this.ws.send(this.createSpeechConfig());
+          this.ws.send(this.createSSML());
+
+          return new Promise((resolve, reject) => {
+            const audioChunks = [];
+            let wordBoundaries = [];
+
+            this.ws.onmessage = (event) => {
+              if (typeof event.data === 'string') {
+                const { headers, body } = this.parseMessage(event.data);
+                if (headers.Path === 'audio.metadata') {
+                  try {
+                    const metadata = JSON.parse(body);
+                    if (metadata.Metadata && Array.isArray(metadata.Metadata)) {
+                      const boundaries = metadata.Metadata.filter(
+                        (item) => item.Type === 'WordBoundary' && item.Data
+                      ).map((item) => ({
+                        offset: item.Data.Offset,
+                        duration: item.Data.Duration,
+                        text: item.Data.text.Text,
+                      }));
+                      wordBoundaries = wordBoundaries.concat(boundaries);
+                    }
+                  } catch (e) {
+                    // Ignore JSON parsing errors
+                  }
+                } else if (headers.Path === 'turn.end') {
+                  this.ws.close();
+                }
+              } else if (event.data instanceof Blob) {
+                event.data.arrayBuffer().then((arrayBuffer) => {
+                  const dataView = new DataView(arrayBuffer);
+                  const headerLength = dataView.getUint16(0);
+
+                  if (arrayBuffer.byteLength > headerLength + 2) {
+                    const audioData = new Uint8Array(
+                      arrayBuffer,
+                      headerLength + 2
+                    );
+                    audioChunks.push(audioData);
+                  }
+                });
+              }
+            };
+
+            this.ws.onclose = () => {
+              const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+              resolve({ audio: audioBlob, subtitle: wordBoundaries });
+            };
+
+            this.ws.onerror = (error) => {
+              reject(error);
+            };
+          });
+        }
+
+        async connect() {
+          const connectionId = this.generateConnectionId();
+          const secMsGec = await this.generateSecMsGec();
+          const url = `${this.WSS_URL}?TrustedClientToken=${this.TRUSTED_CLIENT_TOKEN}&ConnectionId=${connectionId}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-130.0.2849.68`;
+
+          this.ws = new WebSocket(url);
+
+          return new Promise((resolve, reject) => {
+            this.ws.onopen = () => resolve();
+            this.ws.onerror = (error) => reject(error);
+          });
+        }
+
+        parseMessage(message) {
+          const parts = message.split('\r\n\r\n');
+          const headerLines = parts[0].split('\r\n');
+          const headers = {};
+          headerLines.forEach((line) => {
+            const [key, value] = line.split(':', 2);
+            if (key && value) {
+              headers[key.trim()] = value.trim();
+            }
+          });
+          return { headers, body: parts[1] || '' };
+        }
+
+        createSpeechConfig() {
+          const config = {
+            context: {
+              synthesis: {
+                audio: {
+                  metadataoptions: {
+                    sentenceBoundaryEnabled: false,
+                    wordBoundaryEnabled: true,
+                  },
+                  outputFormat: 'audio-24khz-48kbitrate-mono-mp3',
+                },
+              },
+            },
+          };
+          return `X-Timestamp:${this.getTimestamp()}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n${JSON.stringify(
+            config
+          )}`;
+        }
+
+        createSSML() {
+          const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
+                    <voice name='${this.voice}'>
+                        <prosody pitch='${this.pitch}' rate='${
+            this.rate
+          }' volume='${this.volume}'>
+                            ${this.escapeXml(this.text)}
+                        </prosody>
+                    </voice>
+                </speak>`;
+          return `X-RequestId:${this.generateConnectionId()}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${this.getTimestamp()}Z\r\nPath:ssml\r\n\r\n${ssml}`;
+        }
+
+        generateConnectionId() {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+            /[xy]/g,
+            (c) => {
+              const r = (Math.random() * 16) | 0;
+              const v = c === 'x' ? r : (r & 0x3) | 0x8;
+              return v.toString(16);
+            }
+          );
+        }
+
+        getTimestamp() {
+          return new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
+        }
+
+        escapeXml(text) {
+          return text.replace(/[<>&'"]/g, (char) => {
+            switch (char) {
+              case '<':
+                return '&lt;';
+              case '>':
+                return '&gt;';
+              case '&':
+                return '&amp;';
+              case "'":
+                return '&apos;';
+              case '"':
+                return '&quot;';
+              default:
+                return char;
+            }
+          });
+        }
+
+        async generateSecMsGec() {
+          const WIN_EPOCH = 11644473600;
+          const S_TO_NS = 1e9;
+
+          let ticks = Date.now() / 1000;
+          ticks += WIN_EPOCH;
+          ticks -= ticks % 300;
+          ticks *= S_TO_NS / 100;
+
+          const strToHash = `${ticks.toFixed(0)}${this.TRUSTED_CLIENT_TOKEN}`;
+
+          // Use Web Crypto API for hashing
+          const encoder = new TextEncoder();
+          const data = encoder.encode(strToHash);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray
+            .map((b) => b.toString(16).padStart(2, '0'))
+            .join('')
+            .toUpperCase();
+        }
+      }
+
+      // Subtitle utility functions
+      function formatTimestamp(timeIn100ns, format) {
+        const totalSeconds = Math.floor(timeIn100ns / 10000000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = Math.floor((timeIn100ns % 10000000) / 10000);
+        const separator = format === 'vtt' ? '.' : ',';
+        const pad = (num, len = 2) => num.toString().padStart(len, '0');
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}${separator}${pad(
+          milliseconds,
+          3
+        )}`;
+      }
+
+      function createSRT(wordBoundaries) {
+        let srtContent = '';
+        wordBoundaries.forEach((word, index) => {
+          const startTime = formatTimestamp(word.offset, 'srt');
+          const endTime = formatTimestamp(word.offset + word.duration, 'srt');
+          srtContent += `${index + 1}\n`;
+          srtContent += `${startTime} --> ${endTime}\n`;
+          srtContent += `${word.text}\n\n`;
+        });
+        return srtContent;
+      }
+
+      // Main synthesis function
+      async function synthesizeSpeech() {
+        const statusDiv = document.getElementById('status');
+        const audioContainer = document.getElementById('audio-container');
+        const subtitlesContainer = document.getElementById(
+          'subtitles-container'
+        );
+
+        // Clear previous results
+        audioContainer.innerHTML = '';
+        subtitlesContainer.innerHTML = '';
+
+        try {
+          statusDiv.innerHTML =
+            '<div class="success">🔄 Connecting to TTS service...</div>';
+
+          const text = document.getElementById('text').value;
+          const voice = document.getElementById('voice').value;
+          const rate = document.getElementById('rate').value;
+          const pitch = document.getElementById('pitch').value;
+          const volume = document.getElementById('volume').value;
+
+          if (!text.trim()) {
+            throw new Error('Please enter some text to synthesize');
+          }
+
+          const tts = new EdgeTTSBrowser(text, voice, { rate, pitch, volume });
+
+          statusDiv.innerHTML =
+            '<div class="success">🎤 Generating speech...</div>';
+          const result = await tts.synthesize();
+
+          // Create audio element
+          const audioUrl = URL.createObjectURL(result.audio);
+          const audioElement = document.createElement('audio');
+          audioElement.controls = true;
+          audioElement.src = audioUrl;
+          audioContainer.appendChild(audioElement);
+
+          // Display subtitles
+          if (result.subtitle.length > 0) {
+            const srtContent = createSRT(result.subtitle);
+            subtitlesContainer.innerHTML = `
+                        <h3>Generated Subtitles (SRT format):</h3>
+                        <div class="subtitles">${srtContent}</div>
+                    `;
+          }
+
+          statusDiv.innerHTML = `<div class="success">✅ Speech generated successfully! Audio size: ${result.audio.size} bytes, Word boundaries: ${result.subtitle.length}</div>`;
+        } catch (error) {
+          console.error('TTS Error:', error);
+          statusDiv.innerHTML = `<div class="error">❌ Error: ${error.message}
+                    <br><br><strong>Common issues:</strong>
+                    <ul>
+                        <li><strong>CORS Policy:</strong> Microsoft's servers don't allow cross-origin requests from web pages</li>
+                        <li><strong>Network:</strong> Check your internet connection</li>
+                        <li><strong>Service Unavailable:</strong> Microsoft's TTS service might be down</li>
+                    </ul>
+                    <strong>Solutions:</strong>
+                    <ul>
+                        <li>Use a proxy server on your backend</li>
+                        <li>Deploy as a browser extension</li>
+                        <li>Use Microsoft's official Speech SDK instead</li>
+                    </ul>
+                </div>`;
+        }
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', function () {
+        // Set default text
+        const textarea = document.getElementById('text');
+        if (!textarea.value.trim()) {
+          textarea.value =
+            'Hello! This is a test of browser-based text-to-speech synthesis. If you can hear this, the CORS restrictions have been bypassed somehow!';
+        }
+      });
+    </script>
+  </body>
+</html>
