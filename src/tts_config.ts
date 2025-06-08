@@ -36,7 +36,8 @@ export class TTSConfig implements ITTSConfig {
     // Voice validation and transformation
     const match = /^([a-z]{2,})-([A-Z]{2,})-(.+Neural)$/.exec(this.voice);
     if (match) {
-      let [, lang, region, name] = match;
+      const [, lang] = match;
+      let [, , region, name] = match;
       if (name.includes('-')) {
         const parts = name.split('-');
         region += `-${parts[0]}`;

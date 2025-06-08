@@ -38,6 +38,8 @@ export function getHeadersAndDataFromBinary(message: Buffer): [{ [key: string]: 
 }
 
 export function removeIncompatibleCharacters(text: string): string {
+  // Remove control characters (U+0000 to U+001F except \t, \n, \r)
+  // eslint-disable-next-line no-control-regex
   return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ' ');
 }
 
@@ -105,7 +107,7 @@ export function* splitTextByByteLength(text: string | Buffer, byteLength: number
       );
     }
 
-    let chunk = buffer.subarray(0, splitAt);
+    const chunk = buffer.subarray(0, splitAt);
     const chunkString = chunk.toString('utf-8').trim();
     if (chunkString) {
       yield Buffer.from(chunkString, 'utf-8');

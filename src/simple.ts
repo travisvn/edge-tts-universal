@@ -1,5 +1,4 @@
 import { Communicate } from './communicate';
-import { SubMaker } from './submaker';
 
 /**
  * Options for controlling the voice prosody (rate, pitch, volume).

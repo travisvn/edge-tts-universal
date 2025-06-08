@@ -329,14 +329,8 @@ export class IsomorphicCommunicate {
 
     for (const partialText of this.texts) {
       this.state.partialText = partialText;
-      try {
-        for await (const message of this._stream()) {
-          yield message;
-        }
-      } catch (e) {
-        // Note: AxiosError handling is specific to the voices.ts functionality
-        // For the WebSocket communication, we don't use axios
-        throw e;
+      for await (const message of this._stream()) {
+        yield message;
       }
     }
   }

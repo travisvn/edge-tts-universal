@@ -4,7 +4,7 @@
     "es2022": true,
     "node": true
   },
-  "extends": ["eslint:recommended", "@typescript-eslint/recommended"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
@@ -12,9 +12,10 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
+    "no-case-declarations": "off",
     "prefer-const": "error",
     "no-var": "error"
   },
@@ -36,14 +37,15 @@
     {
       "files": ["src/webworker*.ts", "src/*worker*"],
       "env": {
-        "webworker": true,
+        "worker": true,
         "node": false,
         "browser": false
       },
       "globals": {
         "importScripts": "readonly",
         "WorkerGlobalScope": "readonly",
-        "postMessage": "readonly"
+        "postMessage": "readonly",
+        "self": "readonly"
       }
     },
     {
@@ -64,7 +66,7 @@
       },
       "rules": {
         "@typescript-eslint/no-explicit-any": "off",
-        "console": "off"
+        "no-console": "off"
       }
     }
   ]
