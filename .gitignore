@@ -151,4 +151,5 @@ coverage/
 *.mp3
 bin/
 
+docs/
 .notes/

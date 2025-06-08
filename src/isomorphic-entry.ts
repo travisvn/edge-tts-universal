@@ -1,3 +1,31 @@
+/**
+ * Isomorphic/Universal entry point for edge-tts-universal.
+ * 
+ * This module exports APIs that work consistently across both Node.js and browser environments,
+ * providing maximum compatibility for text-to-speech functionality using Microsoft Edge's TTS service.
+ * 
+ * Key features:
+ * - Universal compatibility (Node.js, browsers, web workers)
+ * - No platform-specific dependencies in the API surface
+ * - Consistent behavior across environments
+ * - Built-in proxy support for Node.js
+ * - CORS-aware browser implementation
+ * 
+ * @example
+ * ```typescript
+ * import { EdgeTTS, listVoices } from '@edge-tts/universal';
+ * 
+ * // Works in both Node.js and browsers
+ * const tts = new EdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural');
+ * const result = await tts.synthesize();
+ * 
+ * // Get available voices
+ * const voices = await listVoices();
+ * ```
+ * 
+ * @module IsomorphicEntry
+ */
+
 // Isomorphic/Universal entry point - exports only APIs that work in both Node.js and browsers
 // Use this for maximum compatibility across environments
 

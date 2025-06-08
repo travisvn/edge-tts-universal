@@ -3,6 +3,11 @@ import { TTSConfig } from './tts_config';
 import { ValueError } from "./exceptions";
 import escape from 'xml-escape';
 
+/**
+ * Parses text-based WebSocket messages to extract headers and data.
+ * @param message - Buffer containing the message to parse
+ * @returns Tuple of headers object and data buffer
+ */
 export function getHeadersAndDataFromText(message: Buffer): [{ [key: string]: string }, Buffer] {
   const headerLength = message.indexOf('\r\n\r\n');
   const headers: { [key: string]: string } = {};
@@ -20,6 +25,11 @@ export function getHeadersAndDataFromText(message: Buffer): [{ [key: string]: st
   return [headers, message.subarray(headerLength + 2)];
 }
 
+/**
+ * Parses binary WebSocket messages to extract headers and data.
+ * @param message - Buffer containing the binary message to parse
+ * @returns Tuple of headers object and data buffer
+ */
 export function getHeadersAndDataFromBinary(message: Buffer): [{ [key: string]: string }, Buffer] {
   const headerLength = message.readUInt16BE(0);
   const headers: { [key: string]: string } = {};
@@ -37,12 +47,21 @@ export function getHeadersAndDataFromBinary(message: Buffer): [{ [key: string]: 
   return [headers, message.subarray(headerLength + 2)];
 }
 
+/**
+ * Removes control characters that are incompatible with TTS processing.
+ * @param text - Input text to clean
+ * @returns Text with control characters replaced by spaces
+ */
 export function removeIncompatibleCharacters(text: string): string {
   // Remove control characters (U+0000 to U+001F except \t, \n, \r)
   // eslint-disable-next-line no-control-regex
   return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ' ');
 }
 
+/**
+ * Generates a unique connection ID for WebSocket connections.
+ * @returns UUID string with hyphens removed
+ */
 export function connectId(): string {
   return uuidv4().replace(/-/g, '');
 }
@@ -84,6 +103,14 @@ function _adjustSplitPointForXmlEntity(text: Buffer, splitAt: number): number {
   return splitAt;
 }
 
+/**
+ * Splits text into chunks that don't exceed the specified byte length.
+ * Attempts to split at word boundaries and handles UTF-8 encoding properly.
+ * @param text - Text to split (string or Buffer)
+ * @param byteLength - Maximum byte length per chunk
+ * @yields Buffer chunks of the split text
+ * @throws {ValueError} If byteLength is too small or text has invalid structure
+ */
 export function* splitTextByByteLength(text: string | Buffer, byteLength: number): Generator<Buffer> {
   let buffer = Buffer.isBuffer(text) ? text : Buffer.from(text, 'utf-8');
 
@@ -122,6 +149,12 @@ export function* splitTextByByteLength(text: string | Buffer, byteLength: number
   }
 }
 
+/**
+ * Creates SSML (Speech Synthesis Markup Language) from text and TTS configuration.
+ * @param tc - TTS configuration containing voice and prosody settings
+ * @param escapedText - Text content (should be XML-escaped)
+ * @returns Complete SSML document string
+ */
 export function mkssml(tc: TTSConfig, escapedText: string | Buffer): string {
   const text = Buffer.isBuffer(escapedText) ? escapedText.toString('utf-8') : escapedText;
   return (
@@ -135,10 +168,21 @@ export function mkssml(tc: TTSConfig, escapedText: string | Buffer): string {
   );
 }
 
+/**
+ * Formats the current date as a string in the format expected by the TTS service.
+ * @returns Formatted date string
+ */
 export function dateToString(): string {
   return new Date().toUTCString().replace("GMT", "GMT+0000 (Coordinated Universal Time)");
 }
 
+/**
+ * Creates a complete WebSocket message with headers and SSML data.
+ * @param requestId - Unique request identifier
+ * @param timestamp - Timestamp string for the request
+ * @param ssml - SSML content to include in the message
+ * @returns Complete WebSocket message string with headers and data
+ */
 export function ssmlHeadersPlusData(requestId: string, timestamp: string, ssml: string): string {
   return (
     `X-RequestId:${requestId}\r\n`
@@ -149,6 +193,11 @@ export function ssmlHeadersPlusData(requestId: string, timestamp: string, ssml: 
   );
 }
 
+/**
+ * Calculates the maximum message size for text chunks based on WebSocket limits.
+ * @param ttsConfig - TTS configuration to calculate overhead for
+ * @returns Maximum byte size for text content in a single message
+ */
 export function calcMaxMesgSize(ttsConfig: TTSConfig): number {
   const websocketMaxSize = 2 ** 16;
   const overheadPerMessage = ssmlHeadersPlusData(
@@ -160,6 +209,12 @@ export function calcMaxMesgSize(ttsConfig: TTSConfig): number {
 }
 
 export { escape };
+
+/**
+ * Unescapes XML entities in text.
+ * @param text - Text containing XML entities to unescape
+ * @returns Text with XML entities converted back to their original characters
+ */
 export function unescape(text: string): string {
   return text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 } 

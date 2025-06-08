@@ -62,6 +62,13 @@ export class SubMaker {
     });
   }
 
+  /**
+   * Merges consecutive cues to create subtitle entries with multiple words.
+   * This is useful for creating more readable subtitles instead of word-by-word display.
+   * 
+   * @param words - Maximum number of words per merged cue
+   * @throws {ValueError} If words parameter is invalid
+   */
   mergeCues(words: number): void {
     if (words <= 0) {
       throw new ValueError("Invalid number of words to merge, expected > 0");

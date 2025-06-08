@@ -60,7 +60,7 @@ export interface SynthesisResult {
 /**
  * Browser-compatible Edge TTS class that uses native browser APIs.
  * 
- * @warning This uses an undocumented Microsoft API. CORS policy may prevent
+ * @remarks This uses an undocumented Microsoft API. CORS policy may prevent
  * direct usage from web apps. Consider using a proxy server.
  */
 export class EdgeTTSBrowser {

@@ -1,18 +1,49 @@
 import { ValueError } from "./exceptions";
 
+/**
+ * Interface defining the configuration options for TTS synthesis.
+ */
 export interface ITTSConfig {
+  /** Voice name to use for synthesis */
   voice: string;
+  /** Speech rate adjustment (e.g., "+20%", "-10%") */
   rate: string;
+  /** Volume level adjustment (e.g., "+50%", "-25%") */
   volume: string;
+  /** Pitch adjustment in Hz (e.g., "+5Hz", "-10Hz") */
   pitch: string;
 }
 
+/**
+ * Configuration class for TTS synthesis parameters.
+ * Handles voice name normalization and parameter validation.
+ * 
+ * @example
+ * ```typescript
+ * const config = new TTSConfig({
+ *   voice: 'en-US-EmmaMultilingualNeural',
+ *   rate: '+20%',
+ *   volume: '+10%',
+ *   pitch: '+5Hz'
+ * });
+ * ```
+ */
 export class TTSConfig implements ITTSConfig {
   public voice: string;
   public rate: string;
   public volume: string;
   public pitch: string;
 
+  /**
+   * Creates a new TTSConfig instance with the specified parameters.
+   * 
+   * @param options - Configuration options
+   * @param options.voice - Voice name (supports both short and full formats)
+   * @param options.rate - Speech rate adjustment (default: "+0%")
+   * @param options.volume - Volume adjustment (default: "+0%") 
+   * @param options.pitch - Pitch adjustment (default: "+0Hz")
+   * @throws {ValueError} If any parameter has an invalid format
+   */
   constructor({
     voice,
     rate = "+0%",
