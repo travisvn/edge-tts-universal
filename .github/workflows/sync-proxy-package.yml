@@ -1,0 +1,53 @@
+# Add this file to your edge-tts-universal repo at:
+# .github/workflows/sync-proxy-package.yml
+
+name: Sync Proxy Package Version
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to sync to proxy (e.g., 1.2.3)'
+        required: true
+        type: string
+
+jobs:
+  trigger-proxy-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            # Extract version from release tag (v1.2.3 -> 1.2.3)
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION=${VERSION#v}  # Remove 'v' prefix if present
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Syncing version: $VERSION"
+
+      - name: Trigger proxy repo sync
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PROXY_REPO_TOKEN }}
+          repository: travisvn/universal-edge-tts
+          event-type: sync-version
+          client-payload: |
+            {
+              "version": "${{ steps.version.outputs.version }}",
+              "main_version": "${{ steps.version.outputs.version }}",
+              "triggered_by": "${{ github.repository }}",
+              "trigger_event": "${{ github.event_name }}"
+            }
+
+      - name: Log trigger
+        run: |
+          echo "✅ Triggered proxy repo sync for version ${{ steps.version.outputs.version }}"
+          echo "📦 Repository: travisvn/universal-edge-tts"
+          echo "🔄 Event: sync-version"
