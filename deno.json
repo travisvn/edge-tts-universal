@@ -1,0 +1,36 @@
+{
+  "name": "@edge-tts/universal",
+  "version": "1.0.3",
+  "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
+  "exports": {
+    ".": "./src/isomorphic-entry.ts",
+    "./browser": "./src/browser-entry.ts",
+    "./isomorphic": "./src/isomorphic-entry.ts"
+  },
+  "imports": {
+    "buffer": "https://deno.land/std@0.208.0/node/buffer.ts",
+    "crypto": "https://deno.land/std@0.208.0/node/crypto.ts",
+    "uuid": "https://deno.land/std@0.208.0/uuid/mod.ts"
+  },
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read examples/isomorphic-example.ts",
+    "test": "deno test --allow-net"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "fmt": {
+    "files": {
+      "include": ["src/", "examples/"],
+      "exclude": ["dist/", "node_modules/"]
+    }
+  },
+  "lint": {
+    "files": {
+      "include": ["src/", "examples/"],
+      "exclude": ["dist/", "node_modules/"]
+    }
+  }
+}

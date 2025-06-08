@@ -2,6 +2,9 @@
 
 [![API Documentation](https://img.shields.io/badge/API-Documentation-blue)](./API.md)
 [![npm](https://img.shields.io/npm/v/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/edge-tts-universal)](https://bundlephobia.com/package/edge-tts-universal)
+[![Downloads](https://img.shields.io/npm/dm/edge-tts-universal)](https://www.npmjs.com/package/edge-tts-universal)
+[![Tree Shaking](https://img.shields.io/badge/tree%20shaking-✓-green)](#bundle-optimization)
 
 This is a **universal** TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from **Node.js, browsers, and any JavaScript environment**.
 
@@ -49,6 +52,43 @@ import { EdgeTTS, Communicate } from 'edge-tts-universal/browser';
 ```typescript
 import { EdgeTTS, Communicate } from 'edge-tts-universal/isomorphic';
 ```
+
+### 👷 Web Worker Import (For background processing)
+
+```typescript
+import {
+  EdgeTTS,
+  Communicate,
+  postAudioMessage,
+} from 'edge-tts-universal/webworker';
+```
+
+### 🌐 CDN Import (No build step required)
+
+```html
+<!-- Via unpkg -->
+<script type="module">
+  import { EdgeTTS } from 'https://unpkg.com/edge-tts-universal/dist/browser.js';
+</script>
+
+<!-- Via jsdelivr -->
+<script type="module">
+  import { EdgeTTS } from 'https://cdn.jsdelivr.net/npm/edge-tts-universal/dist/browser.js';
+</script>
+```
+
+## Bundle Optimization
+
+Choose the right entry point for optimal bundle size:
+
+| Entry Point                     | Bundle Size\* | Use Case       | Dependencies    |
+| ------------------------------- | ------------- | -------------- | --------------- |
+| `edge-tts-universal`            | ~46KB         | Node.js apps   | All deps        |
+| `edge-tts-universal/browser`    | ~30KB         | Browser apps   | Zero deps       |
+| `edge-tts-universal/isomorphic` | ~36KB         | Universal apps | Isomorphic deps |
+| `edge-tts-universal/webworker`  | ~36KB         | Web Workers    | Isomorphic deps |
+
+_\* Minified + Gzipped estimates_
 
 ## Quick Start
 

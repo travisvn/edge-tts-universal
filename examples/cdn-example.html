@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge TTS Universal - CDN Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌐 Edge TTS Universal - CDN Example</h1>
+    
+    <div class="warning">
+        <strong>⚠️ CORS Notice:</strong> This example may fail due to CORS restrictions.
+        The CDN version works best in environments where CORS is handled (proxy server, browser extensions, etc.)
+    </div>
+    
+    <h2>CDN Usage Examples</h2>
+    
+    <h3>Via unpkg:</h3>
+    <pre><code>&lt;script type="module"&gt;
+  import { EdgeTTS } from 'https://unpkg.com/edge-tts-universal/dist/browser.js';
+&lt;/script&gt;</code></pre>
+    
+    <h3>Via jsdelivr:</h3>
+    <pre><code>&lt;script type="module"&gt;
+  import { EdgeTTS } from 'https://cdn.jsdelivr.net/npm/edge-tts-universal/dist/browser.js';
+&lt;/script&gt;</code></pre>
+    
+    <h2>Live Demo</h2>
+    <button onclick="testCDNImport()" id="testBtn">Test CDN Import</button>
+    <button onclick="synthesizeFromCDN()" id="synthBtn" disabled>Synthesize Speech</button>
+    
+    <div id="output"></div>
+    
+    <script type="module">
+        let EdgeTTS = null;
+        let outputDiv = document.getElementById('output');
+        
+        window.testCDNImport = async function() {
+            const btn = document.getElementById('testBtn');
+            btn.disabled = true;
+            btn.textContent = 'Loading from CDN...';
+            
+            try {
+                // Try to import from CDN
+                const module = await import('https://unpkg.com/edge-tts-universal@latest/dist/browser.js');
+                EdgeTTS = module.EdgeTTS;
+                
+                outputDiv.innerHTML = '<div style="color: green;">✅ Successfully imported EdgeTTS from CDN!</div>';
+                document.getElementById('synthBtn').disabled = false;
+                btn.textContent = 'CDN Import Successful';
+                btn.style.background = '#28a745';
+                
+            } catch (error) {
+                console.error('CDN import failed:', error);
+                outputDiv.innerHTML = `
+                    <div style="color: red;">❌ CDN Import Failed: ${error.message}</div>
+                    <div style="margin-top: 10px;">
+                        <strong>Common solutions:</strong>
+                        <ul>
+                            <li>Use a local copy of the library</li>
+                            <li>Set up a proxy server</li>
+                            <li>Use in a browser extension context</li>
+                        </ul>
+                    </div>
+                `;
+                btn.textContent = 'CDN Import Failed';
+                btn.style.background = '#dc3545';
+            }
+        };
+        
+        window.synthesizeFromCDN = async function() {
+            if (!EdgeTTS) {
+                outputDiv.innerHTML = '<div style="color: red;">❌ EdgeTTS not loaded. Try importing from CDN first.</div>';
+                return;
+            }
+            
+            const btn = document.getElementById('synthBtn');
+            btn.disabled = true;
+            btn.textContent = 'Synthesizing...';
+            
+            try {
+                const tts = new EdgeTTS(
+                    'Hello! This is Edge TTS Universal loaded from CDN. Pretty cool, right?',
+                    'Microsoft Server Speech Text to Speech Voice (en-US, EmmaMultilingualNeural)',
+                    { rate: '+10%', volume: '+0%', pitch: '+0Hz' }
+                );
+                
+                const result = await tts.synthesize();
+                
+                // Create audio element
+                const audioUrl = URL.createObjectURL(result.audio);
+                const audioElement = document.createElement('audio');
+                audioElement.controls = true;
+                audioElement.src = audioUrl;
+                
+                // Create download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = audioUrl;
+                downloadLink.download = 'cdn-tts-output.mp3';
+                downloadLink.textContent = 'Download Audio';
+                downloadLink.style.display = 'block';
+                downloadLink.style.marginTop = '10px';
+                
+                outputDiv.innerHTML = `
+                    <div style="color: green;">✅ Speech synthesized from CDN!</div>
+                    <div>Audio size: ${result.audio.size} bytes</div>
+                    <div>Word boundaries: ${result.subtitle.length}</div>
+                `;
+                outputDiv.appendChild(audioElement);
+                outputDiv.appendChild(downloadLink);
+                
+                btn.textContent = 'Synthesis Complete';
+                btn.style.background = '#28a745';
+                
+            } catch (error) {
+                console.error('Synthesis failed:', error);
+                outputDiv.innerHTML = `<div style="color: red;">❌ Synthesis Failed: ${error.message}</div>`;
+                btn.textContent = 'Synthesis Failed';
+                btn.style.background = '#dc3545';
+            }
+        };
+    </script>
+</body>
+</html> 

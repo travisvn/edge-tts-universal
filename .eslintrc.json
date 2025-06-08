@@ -1,0 +1,71 @@
+{
+  "root": true,
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "prefer-const": "error",
+    "no-var": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/browser*.ts", "src/*browser*"],
+      "env": {
+        "browser": true,
+        "node": false
+      },
+      "globals": {
+        "WebSocket": "readonly",
+        "Blob": "readonly",
+        "URL": "readonly",
+        "TextEncoder": "readonly",
+        "crypto": "readonly"
+      }
+    },
+    {
+      "files": ["src/webworker*.ts", "src/*worker*"],
+      "env": {
+        "webworker": true,
+        "node": false,
+        "browser": false
+      },
+      "globals": {
+        "importScripts": "readonly",
+        "WorkerGlobalScope": "readonly",
+        "postMessage": "readonly"
+      }
+    },
+    {
+      "files": ["src/isomorphic*.ts", "src/*isomorphic*"],
+      "env": {
+        "node": true,
+        "browser": true
+      },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": ["examples/**/*.ts"],
+      "env": {
+        "node": true,
+        "browser": true
+      },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "console": "off"
+      }
+    }
+  ]
+}

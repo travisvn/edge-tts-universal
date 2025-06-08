@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Main (Node.js)",
+    "path": "dist/index.js",
+    "limit": "50 KB"
+  },
+  {
+    "name": "Browser",
+    "path": "dist/browser.js", 
+    "limit": "35 KB"
+  },
+  {
+    "name": "Isomorphic",
+    "path": "dist/isomorphic.js",
+    "limit": "40 KB"
+  },
+  {
+    "name": "Web Worker",
+    "path": "dist/webworker.js",
+    "limit": "40 KB"
+  }
+] 

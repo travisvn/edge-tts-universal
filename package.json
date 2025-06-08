@@ -1,11 +1,17 @@
 {
   "name": "edge-tts-universal",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/browser.js",
+  "jsdelivr": "./dist/browser.js",
+  "browser": {
+    "./dist/index.js": "./dist/browser.js",
+    "./dist/index.cjs": "./dist/browser.cjs"
+  },
   "exports": {
     ".": {
       "import": {
@@ -36,6 +42,16 @@
         "types": "./dist/isomorphic.d.cts",
         "default": "./dist/isomorphic.cjs"
       }
+    },
+    "./webworker": {
+      "import": {
+        "types": "./dist/webworker.d.ts",
+        "default": "./dist/webworker.js"
+      },
+      "require": {
+        "types": "./dist/webworker.d.cts",
+        "default": "./dist/webworker.cjs"
+      }
     }
   },
   "files": [
@@ -46,7 +62,18 @@
     "dev": "tsup --watch",
     "docs": "typedoc",
     "docs:serve": "typedoc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "lint": "eslint src examples --ext .ts",
+    "lint:fix": "eslint src examples --ext .ts --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "example:simple": "tsx examples/simple-api.ts",
+    "example:streaming": "tsx examples/streaming.ts",
+    "example:voices": "tsx examples/listVoices.ts",
+    "example:universal": "tsx examples/universal-detection.ts",
+    "example:isomorphic": "tsx examples/isomorphic-example.ts",
+    "size": "size-limit",
+    "analyze": "npx @next/bundle-analyzer"
   },
   "keywords": [
     "text-to-speech",
@@ -87,6 +114,13 @@
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.5",
     "@types/xml-escape": "^1.1.3",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0",
+    "size-limit": "^11.0.0",
+    "@size-limit/preset-small-lib": "^11.0.0",
+    "tsx": "^4.0.0",
     "tsup": "^8.5.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.1.6"

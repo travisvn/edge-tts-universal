@@ -5,6 +5,7 @@ export default defineConfig({
     index: 'src/index.ts',
     browser: 'src/browser-entry.ts',
     isomorphic: 'src/isomorphic-entry.ts',
+    webworker: 'src/webworker-entry.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,
