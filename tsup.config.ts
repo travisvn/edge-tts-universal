@@ -6,6 +6,7 @@ export default defineConfig({
     browser: 'src/browser-entry.ts',
     isomorphic: 'src/isomorphic-entry.ts',
     webworker: 'src/webworker-entry.ts',
+    'runtime-detection': 'src/runtime-detection.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,

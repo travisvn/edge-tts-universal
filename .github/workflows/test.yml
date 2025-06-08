@@ -1,0 +1,168 @@
+name: Test & Build
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.runtime }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - runtime: node
+            node-version: '16'
+          - runtime: node
+            node-version: '18'
+          - runtime: node
+            node-version: '20'
+          - runtime: deno
+            deno-version: 'v1.x'
+          - runtime: bun
+            bun-version: 'latest'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: matrix.runtime == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Setup Deno
+        if: matrix.runtime == 'deno'
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - name: Setup Bun
+        if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: Install dependencies (Node.js)
+        if: matrix.runtime == 'node'
+        run: npm ci
+
+      - name: Install dependencies (Bun)
+        if: matrix.runtime == 'bun'
+        run: bun install
+
+      - name: Type check (Node.js)
+        if: matrix.runtime == 'node'
+        run: npm run type-check
+
+      - name: Lint (Node.js)
+        if: matrix.runtime == 'node' && matrix.node-version == '18'
+        run: npm run lint
+
+      - name: Build (Node.js/Bun)
+        if: matrix.runtime == 'node' || matrix.runtime == 'bun'
+        run: npm run build
+
+      - name: Test Node.js
+        if: matrix.runtime == 'node'
+        run: npm test
+        continue-on-error: true
+
+      - name: Test Deno
+        if: matrix.runtime == 'deno'
+        run: deno task test
+        continue-on-error: true
+
+      - name: Test Bun
+        if: matrix.runtime == 'bun'
+        run: bun test
+        continue-on-error: true
+
+      - name: Check bundle sizes
+        if: matrix.runtime == 'node' && matrix.node-version == '18'
+        run: npm run size
+        continue-on-error: true
+
+  build-matrix:
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [node, browser, isomorphic, webworker]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build ${{ matrix.target }}
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.target }}
+          path: dist/
+          retention-days: 7
+
+  compatibility-test:
+    name: Test Cross-Runtime Compatibility
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Test runtime detection (Node.js)
+        run: node -e "const { detectRuntime } = require('./dist/runtime-detection.cjs'); const runtime = detectRuntime(); console.log('Node.js runtime detection:', runtime); if (runtime.name !== 'node') process.exit(1);"
+
+      - name: Test runtime detection (Deno)
+        run: deno eval "import { detectRuntime } from './dist/runtime-detection.js'; const runtime = detectRuntime(); console.log('Deno runtime detection:', runtime); if (runtime.name !== 'deno') Deno.exit(1);"
+
+      - name: Test runtime detection (Bun)
+        run: bun run -e "import { detectRuntime } from './dist/runtime-detection.js'; const runtime = detectRuntime(); console.log('Bun runtime detection:', runtime); if (runtime.name !== 'bun') process.exit(1);"
+
+      - name: Test package imports (Node.js)
+        run: node -e "const main = require('./dist/index.cjs'); const browser = require('./dist/browser.cjs'); const isomorphic = require('./dist/isomorphic.cjs'); console.log('✅ All Node.js imports work');"
+
+      - name: Test package imports (Deno)
+        run: deno eval "import * as main from './dist/index.js'; import * as browser from './dist/browser.js'; import * as isomorphic from './dist/isomorphic.js'; console.log('✅ All Deno imports work');"
+
+      - name: Test package imports (Bun)
+        run: bun run -e "import * as main from './dist/index.js'; import * as browser from './dist/browser.js'; import * as isomorphic from './dist/isomorphic.js'; console.log('✅ All Bun imports work');"

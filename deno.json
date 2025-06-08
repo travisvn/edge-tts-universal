@@ -1,24 +1,44 @@
 {
   "name": "@edge-tts/universal",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
+  "license": "AGPL-3.0",
+  "author": "Travis <contact@travis.engineer>",
+  "homepage": "https://github.com/travisvn/edge-tts-universal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/travisvn/edge-tts-universal.git"
+  },
   "exports": {
     ".": "./src/isomorphic-entry.ts",
     "./browser": "./src/browser-entry.ts",
-    "./isomorphic": "./src/isomorphic-entry.ts"
+    "./isomorphic": "./src/isomorphic-entry.ts",
+    "./webworker": "./src/webworker-entry.ts"
   },
   "imports": {
     "buffer": "https://deno.land/std@0.208.0/node/buffer.ts",
     "crypto": "https://deno.land/std@0.208.0/node/crypto.ts",
-    "uuid": "https://deno.land/std@0.208.0/uuid/mod.ts"
+    "uuid": "https://deno.land/std@0.208.0/uuid/mod.ts",
+    "axios": "npm:axios@^1.4.0",
+    "cross-fetch": "npm:cross-fetch@^4.1.0",
+    "https-proxy-agent": "npm:https-proxy-agent@^7.0.6",
+    "isomorphic-webcrypto": "npm:isomorphic-webcrypto@^2.3.8",
+    "isomorphic-ws": "npm:isomorphic-ws@^5.0.0",
+    "ws": "npm:ws@^8.13.0",
+    "xml-escape": "npm:xml-escape@^1.1.0"
   },
   "tasks": {
     "dev": "deno run --allow-net --allow-read examples/isomorphic-example.ts",
-    "test": "deno test --allow-net"
+    "test": "deno test --allow-net",
+    "example:simple": "deno run --allow-net examples/simple-api.ts",
+    "example:streaming": "deno run --allow-net examples/streaming.ts",
+    "example:voices": "deno run --allow-net examples/listVoices.ts",
+    "example:universal": "deno run --allow-net examples/universal-detection.ts",
+    "example:isomorphic": "deno run --allow-net examples/isomorphic-example.ts"
   },
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["deno.window"],
+    "lib": ["deno.window", "deno.worker"],
     "strict": true
   },
   "fmt": {
@@ -32,5 +52,15 @@
       "include": ["src/", "examples/"],
       "exclude": ["dist/", "node_modules/"]
     }
+  },
+  "publish": {
+    "exclude": [
+      "node_modules/",
+      "dist/",
+      "examples/",
+      "docs/",
+      ".git/",
+      "*.log"
+    ]
   }
 }

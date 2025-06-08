@@ -12,8 +12,21 @@
     "./dist/index.js": "./dist/browser.js",
     "./dist/index.cjs": "./dist/browser.cjs"
   },
+  "engines": {
+    "node": ">=16.0.0",
+    "bun": ">=1.0.0"
+  },
   "exports": {
     ".": {
+      "bun": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "require": "./dist/index.cjs"
+      },
+      "deno": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
@@ -24,6 +37,15 @@
       }
     },
     "./browser": {
+      "bun": {
+        "types": "./dist/browser.d.ts",
+        "import": "./dist/browser.js",
+        "require": "./dist/browser.cjs"
+      },
+      "deno": {
+        "types": "./dist/browser.d.ts",
+        "import": "./dist/browser.js"
+      },
       "import": {
         "types": "./dist/browser.d.ts",
         "default": "./dist/browser.js"
@@ -34,6 +56,15 @@
       }
     },
     "./isomorphic": {
+      "bun": {
+        "types": "./dist/isomorphic.d.ts",
+        "import": "./dist/isomorphic.js",
+        "require": "./dist/isomorphic.cjs"
+      },
+      "deno": {
+        "types": "./dist/isomorphic.d.ts",
+        "import": "./dist/isomorphic.js"
+      },
       "import": {
         "types": "./dist/isomorphic.d.ts",
         "default": "./dist/isomorphic.js"
@@ -44,6 +75,15 @@
       }
     },
     "./webworker": {
+      "bun": {
+        "types": "./dist/webworker.d.ts",
+        "import": "./dist/webworker.js",
+        "require": "./dist/webworker.cjs"
+      },
+      "deno": {
+        "types": "./dist/webworker.d.ts",
+        "import": "./dist/webworker.js"
+      },
       "import": {
         "types": "./dist/webworker.d.ts",
         "default": "./dist/webworker.js"
@@ -51,6 +91,25 @@
       "require": {
         "types": "./dist/webworker.d.cts",
         "default": "./dist/webworker.cjs"
+      }
+    },
+    "./runtime-detection": {
+      "bun": {
+        "types": "./dist/runtime-detection.d.ts",
+        "import": "./dist/runtime-detection.js",
+        "require": "./dist/runtime-detection.cjs"
+      },
+      "deno": {
+        "types": "./dist/runtime-detection.d.ts",
+        "import": "./dist/runtime-detection.js"
+      },
+      "import": {
+        "types": "./dist/runtime-detection.d.ts",
+        "default": "./dist/runtime-detection.js"
+      },
+      "require": {
+        "types": "./dist/runtime-detection.d.cts",
+        "default": "./dist/runtime-detection.cjs"
       }
     }
   },
@@ -73,7 +132,10 @@
     "example:universal": "tsx examples/universal-detection.ts",
     "example:isomorphic": "tsx examples/isomorphic-example.ts",
     "size": "size-limit",
-    "analyze": "npx @next/bundle-analyzer"
+    "analyze": "npx @next/bundle-analyzer",
+    "publish:jsr": "deno publish",
+    "publish:npm": "npm publish",
+    "publish:all": "npm run publish:npm && npm run publish:jsr"
   },
   "keywords": [
     "text-to-speech",
