@@ -16,9 +16,9 @@
     "./webworker": "./src/webworker-entry.ts"
   },
   "imports": {
-    "buffer": "https://deno.land/std@0.208.0/node/buffer.ts",
-    "crypto": "https://deno.land/std@0.208.0/node/crypto.ts",
-    "uuid": "https://deno.land/std@0.208.0/uuid/mod.ts",
+    "buffer": "node:buffer",
+    "crypto": "node:crypto",
+    "uuid": "npm:uuid@^11.1.0",
     "axios": "npm:axios@^1.4.0",
     "cross-fetch": "npm:cross-fetch@^4.1.0",
     "https-proxy-agent": "npm:https-proxy-agent@^7.0.6",
@@ -37,10 +37,10 @@
     "example:isomorphic": "deno run --allow-net examples/isomorphic-example.ts"
   },
   "compilerOptions": {
-    "allowJs": true,
     "lib": ["deno.window", "deno.worker"],
     "strict": true
   },
+  "unstable": ["sloppy-imports"],
   "fmt": {
     "files": {
       "include": ["src/", "examples/"],

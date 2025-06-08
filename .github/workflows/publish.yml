@@ -162,6 +162,9 @@ jobs:
       needs.test.result == 'success' && 
       (needs.sync-versions.result == 'success' || needs.sync-versions.result == 'skipped') &&
       (github.event.inputs.jsr == 'true' || github.event.inputs.jsr == '' || github.event_name == 'release')
+    permissions:
+      contents: read
+      id-token: write # The OIDC JWT token will be requested through this audience value.
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -173,15 +176,11 @@ jobs:
 
       - name: Publish to JSR (latest)
         if: github.event.inputs.tag == 'latest' || github.event.inputs.tag == '' || github.event_name == 'release'
-        run: deno publish
-        env:
-          DENO_DEPLOY_TOKEN: ${{ secrets.JSR_TOKEN }}
+        run: deno publish --no-check
 
       - name: Publish to JSR (with tag)
         if: github.event.inputs.tag != 'latest' && github.event.inputs.tag != '' && github.event_name != 'release'
-        run: deno publish --tag ${{ github.event.inputs.tag }}
-        env:
-          DENO_DEPLOY_TOKEN: ${{ secrets.JSR_TOKEN }}
+        run: deno publish --tag ${{ github.event.inputs.tag }} --no-check
 
   publish-github:
     name: Publish to GitHub Packages
