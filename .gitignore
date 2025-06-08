@@ -137,7 +137,6 @@ dist
 
 node_modules/
 dist/
-docs/
 *.log
 *.mp3
 *.wav
