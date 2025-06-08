@@ -1,4 +1,4 @@
-# edge-tts API Reference
+# edge-tts-universal API Reference
 
 A comprehensive guide to using the `edge-tts-universal` package for text-to-speech synthesis using Microsoft Edge's online TTS service.
 
