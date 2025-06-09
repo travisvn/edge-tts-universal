@@ -34,28 +34,35 @@
 // Browser-only entry point - exports only browser-compatible APIs
 // Use this in environments where Node.js dependencies are not available
 
+// Export both the old EdgeTTSBrowser class and the new simplified browser API
+export { EdgeTTSBrowser } from './browser';
+
+// Export the new simplified browser-specific API as the main EdgeTTS
 export {
-  EdgeTTSBrowser as EdgeTTS,
+  BrowserEdgeTTS as EdgeTTS,
   ProsodyOptions,
   WordBoundary,
   SynthesisResult,
   createVTT,
   createSRT
-} from './browser';
+} from './browser-simple';
 
-// Export isomorphic APIs as they work in browsers too
+// Export browser-specific implementations to avoid Node.js dependencies
 export {
-  IsomorphicCommunicate as Communicate,
-  IsomorphicCommunicateOptions as CommunicateOptions
-} from './isomorphic-communicate';
+  BrowserCommunicate as Communicate,
+  BrowserCommunicateOptions as CommunicateOptions
+} from './browser-communicate';
 
 export {
-  IsomorphicVoicesManager as VoicesManager,
+  BrowserVoicesManager as VoicesManager,
   listVoices,
-  FetchError
-} from './isomorphic-voices';
+  BrowserFetchError as FetchError
+} from './browser-voices';
 
-export { IsomorphicDRM as DRM } from './isomorphic-drm';
+export { BrowserDRM as DRM } from './browser-drm';
+
+// SubMaker works everywhere as it doesn't have environment dependencies
+export { SubMaker } from './submaker';
 
 // Common types and exceptions
 export * from './exceptions';
