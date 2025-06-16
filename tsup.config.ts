@@ -46,8 +46,7 @@ export default defineConfig([
     outDir: 'dist',
     platform: 'browser',
     external: [
-      'uuid',
-      'xml-escape'
+      // No external dependencies for browser builds - all bundled with browser-native implementations
     ]
   }
 ]) 

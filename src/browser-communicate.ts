@@ -1,13 +1,13 @@
 import {
-  calcMaxMesgSize,
-  connectId,
-  dateToString,
-  escape,
-  mkssml,
-  removeIncompatibleCharacters,
-  ssmlHeadersPlusData,
-  unescape
-} from './utils';
+  browserConnectId,
+  browserEscape,
+  browserUnescape,
+  browserSsmlHeadersPlusData,
+  browserDateToString,
+  browserMkssml,
+  browserRemoveIncompatibleCharacters,
+  browserCalcMaxMesgSize
+} from './browser-utils';
 import {
   NoAudioReceived,
   UnexpectedResponse,
@@ -207,8 +207,8 @@ export class BrowserCommunicate {
     }
 
     this.texts = browserSplitTextByByteLength(
-      escape(removeIncompatibleCharacters(text)),
-      calcMaxMesgSize(this.ttsConfig),
+      browserEscape(browserRemoveIncompatibleCharacters(text)),
+      browserCalcMaxMesgSize(this.ttsConfig.voice, this.ttsConfig.rate, this.ttsConfig.volume, this.ttsConfig.pitch),
     );
 
     this.connectionTimeout = options.connectionTimeout;
@@ -225,7 +225,7 @@ export class BrowserCommunicate {
           type: metaType,
           offset: currentOffset,
           duration: currentDuration,
-          text: unescape(metaObj['Data']['text']['Text']),
+          text: browserUnescape(metaObj['Data']['text']['Text']),
         };
       }
       if (metaType === 'SessionEnd') {
@@ -237,7 +237,7 @@ export class BrowserCommunicate {
   }
 
   private async * _stream(): AsyncGenerator<BrowserTTSChunk, void, unknown> {
-    const url = `${WSS_URL}&Sec-MS-GEC=${await BrowserDRM.generateSecMsGec()}&Sec-MS-GEC-Version=${SEC_MS_GEC_VERSION}&ConnectionId=${connectId()}`;
+    const url = `${WSS_URL}&Sec-MS-GEC=${await BrowserDRM.generateSecMsGec()}&Sec-MS-GEC-Version=${SEC_MS_GEC_VERSION}&ConnectionId=${browserConnectId()}`;
 
     const websocket = new WebSocket(url);
     const messageQueue: (BrowserTTSChunk | Error | 'close')[] = [];
@@ -376,7 +376,7 @@ export class BrowserCommunicate {
     });
 
     websocket.send(
-      `X-Timestamp:${dateToString()}\r\n`
+      `X-Timestamp:${browserDateToString()}\r\n`
       + 'Content-Type:application/json; charset=utf-8\r\n'
       + 'Path:speech.config\r\n\r\n'
       + '{"context":{"synthesis":{"audio":{"metadataoptions":{'
@@ -386,10 +386,10 @@ export class BrowserCommunicate {
     );
 
     websocket.send(
-      ssmlHeadersPlusData(
-        connectId(),
-        dateToString(),
-        mkssml(this.ttsConfig, new TextDecoder().decode(this.state.partialText)),
+      browserSsmlHeadersPlusData(
+        browserConnectId(),
+        browserDateToString(),
+        browserMkssml(this.ttsConfig.voice, this.ttsConfig.rate, this.ttsConfig.volume, this.ttsConfig.pitch, new TextDecoder().decode(this.state.partialText)),
       )
     );
 
