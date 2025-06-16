@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -260,7 +260,7 @@ Hello, this is a test of browser-based text-to-speech synthesis!</textarea
                     sentenceBoundaryEnabled: false,
                     wordBoundaryEnabled: true,
                   },
-                  outputFormat: 'audio-24khz-48kbitrate-mono-mp3',
+                  outputFormat: 'audio-48khz-192kbitrate-mono-mp3',
                 },
               },
             },
@@ -274,8 +274,8 @@ Hello, this is a test of browser-based text-to-speech synthesis!</textarea
           const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
                     <voice name='${this.voice}'>
                         <prosody pitch='${this.pitch}' rate='${
-            this.rate
-          }' volume='${this.volume}'>
+                          this.rate
+                        }' volume='${this.volume}'>
                             ${this.escapeXml(this.text)}
                         </prosody>
                     </voice>

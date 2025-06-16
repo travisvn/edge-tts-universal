@@ -278,7 +278,6 @@ export class BrowserCommunicate {
           }
         } else if (path === 'turn.end') {
           this.state.offsetCompensation = this.state.lastDurationOffset;
-          this.state.offsetCompensation += 8_750_000;
           websocket.close();
         } else if (path !== 'response' && path !== 'turn.start') {
           messageQueue.push(new UnknownResponse(`Unknown path received: ${path}`));
@@ -381,7 +380,7 @@ export class BrowserCommunicate {
       + 'Path:speech.config\r\n\r\n'
       + '{"context":{"synthesis":{"audio":{"metadataoptions":{'
       + '"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},'
-      + '"outputFormat":"audio-24khz-48kbitrate-mono-mp3"'
+      + '"outputFormat":"audio-48khz-192kbitrate-mono-mp3"'
       + '}}}}\r\n'
     );
 
@@ -409,7 +408,12 @@ export class BrowserCommunicate {
           yield message;
         }
       } else {
-        await new Promise<void>(resolve => { resolveMessage = resolve; });
+        // Use a more responsive wait mechanism
+        await new Promise<void>(resolve => {
+          resolveMessage = resolve;
+          // Add a small timeout to prevent indefinite waiting
+          setTimeout(resolve, 50);
+        });
       }
     }
   }

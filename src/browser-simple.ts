@@ -54,15 +54,23 @@ export interface SynthesisResult {
   subtitle: WordBoundary[];
 }
 
-// Browser-compatible buffer concatenation utility
+// Browser-compatible buffer concatenation utility with improved audio handling
 function concatUint8Arrays(arrays: Uint8Array[]): Uint8Array {
+  if (arrays.length === 0) return new Uint8Array(0);
+  if (arrays.length === 1) return arrays[0];
+
+  // For audio data, we want to ensure smooth concatenation
   const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
   const result = new Uint8Array(totalLength);
   let offset = 0;
+
   for (const arr of arrays) {
-    result.set(arr, offset);
-    offset += arr.length;
+    if (arr.length > 0) {
+      result.set(arr, offset);
+      offset += arr.length;
+    }
   }
+
   return result;
 }
 
