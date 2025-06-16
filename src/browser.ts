@@ -210,7 +210,7 @@ export class EdgeTTSBrowser {
               sentenceBoundaryEnabled: false,
               wordBoundaryEnabled: true,
             },
-            outputFormat: "audio-48khz-192kbitrate-mono-mp3",
+            outputFormat: "audio-24khz-48kbitrate-mono-mp3",
           },
         },
       },

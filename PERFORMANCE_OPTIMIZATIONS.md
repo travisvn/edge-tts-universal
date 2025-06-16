@@ -18,13 +18,11 @@ This document outlines the performance optimizations made to improve audio quali
 
 **Problem**: Low bitrate audio format (24kHz, 48kbps) was causing audio quality issues and potential smoothness problems.
 
-**Solution**: Upgraded audio output format from `audio-24khz-48kbitrate-mono-mp3` to `audio-48khz-192kbitrate-mono-mp3`.
+**Attempted Solution**: Upgraded audio output format from `audio-24khz-48kbitrate-mono-mp3` to `audio-48khz-192kbitrate-mono-mp3`.
 
-**Impact**:
+**Issue**: The higher quality format caused "NoAudioReceived" errors as Microsoft's Edge TTS service doesn't support the 48kHz/192kbps format.
 
-- Sample rate increased from 24kHz to 48kHz (2x improvement)
-- Bitrate increased from 48kbps to 192kbps (4x improvement)
-- Significantly better audio quality and smoothness
+**Final Solution**: Reverted back to the original `audio-24khz-48kbitrate-mono-mp3` format to maintain compatibility while keeping other optimizations.
 
 ### 3. Improved Audio Concatenation
 
@@ -49,7 +47,7 @@ This document outlines the performance optimizations made to improve audio quali
 
 ## Configuration Changes
 
-### Audio Format Upgrade
+### Audio Format Configuration
 
 ```json
 {
@@ -60,12 +58,14 @@ This document outlines the performance optimizations made to improve audio quali
           "sentenceBoundaryEnabled": false,
           "wordBoundaryEnabled": true
         },
-        "outputFormat": "audio-48khz-192kbitrate-mono-mp3"
+        "outputFormat": "audio-24khz-48kbitrate-mono-mp3"
       }
     }
   }
 }
 ```
+
+_Note: Higher quality formats (48kHz/192kbps) were tested but are not supported by Microsoft's Edge TTS service._
 
 ### Timing Compensation
 
@@ -83,7 +83,7 @@ this.state.offsetCompensation = this.state.lastDurationOffset;
 ## Performance Benefits
 
 1. **Reduced Latency**: Elimination of 0.875s artificial delay
-2. **Better Audio Quality**: 4x bitrate increase and 2x sample rate increase
+2. **Maintained Compatibility**: Kept original audio format that works reliably
 3. **Smoother Playback**: Improved audio chunk concatenation
 4. **More Responsive**: Better message processing with timeout handling
 5. **Cross-Platform**: Optimizations applied to all implementations (Browser, Node.js, Isomorphic)

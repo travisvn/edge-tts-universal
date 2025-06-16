@@ -380,7 +380,7 @@ export class BrowserCommunicate {
       + 'Path:speech.config\r\n\r\n'
       + '{"context":{"synthesis":{"audio":{"metadataoptions":{'
       + '"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"true"},'
-      + '"outputFormat":"audio-48khz-192kbitrate-mono-mp3"'
+      + '"outputFormat":"audio-24khz-48kbitrate-mono-mp3"'
       + '}}}}\r\n'
     );
 
