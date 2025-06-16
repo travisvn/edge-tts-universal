@@ -1,4 +1,4 @@
-import { BrowserCommunicate, BrowserTTSChunk } from './browser-communicate';
+import { IsomorphicCommunicate } from './isomorphic-communicate';
 
 /**
  * Options for controlling the voice prosody (rate, pitch, volume).
@@ -67,10 +67,10 @@ function concatUint8Arrays(arrays: Uint8Array[]): Uint8Array {
 }
 
 /**
- * Browser-specific Edge TTS class that uses only browser-native APIs.
- * Avoids any Node.js dependencies that could cause issues in browser environments.
+ * Isomorphic Edge TTS class that works in both Node.js and browser environments.
+ * Uses isomorphic implementations to avoid platform-specific dependencies.
  */
-export class BrowserEdgeTTS {
+export class IsomorphicEdgeTTS {
   public text: string;
   public voice: string;
   public rate: string;
@@ -95,11 +95,11 @@ export class BrowserEdgeTTS {
   }
 
   /**
-   * Initiates the synthesis process using browser-native APIs.
+   * Initiates the synthesis process using isomorphic implementations.
    * @returns A promise that resolves with the synthesized audio and subtitle data.
    */
   public async synthesize(): Promise<SynthesisResult> {
-    const communicate = new BrowserCommunicate(this.text, {
+    const communicate = new IsomorphicCommunicate(this.text, {
       voice: this.voice,
       rate: this.rate,
       volume: this.volume,
@@ -121,7 +121,7 @@ export class BrowserEdgeTTS {
       }
     }
 
-    // Convert Uint8Array chunks to Blob
+    // Convert Uint8Array chunks to Blob (works in both Node.js and browsers)
     const audioBuffer = concatUint8Arrays(audioChunks);
     const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" });
 
@@ -133,7 +133,7 @@ export class BrowserEdgeTTS {
 }
 
 // ==================================================================================
-// Subtitle Generation Utilities (Browser Compatible)
+// Subtitle Generation Utilities (Isomorphic - works everywhere)
 // ==================================================================================
 
 /**

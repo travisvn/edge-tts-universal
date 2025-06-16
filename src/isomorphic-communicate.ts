@@ -23,7 +23,100 @@ import { CommunicateState, TTSChunk } from './types';
 import WebSocket from 'isomorphic-ws';
 import { DEFAULT_VOICE, WSS_URL, WSS_HEADERS, SEC_MS_GEC_VERSION } from './constants';
 import { IsomorphicDRM } from './isomorphic-drm';
-import { Buffer } from 'buffer';
+
+// Isomorphic buffer handling - works in both Node.js and browsers
+const IsomorphicBuffer = {
+  from: (input: string | ArrayBuffer | Uint8Array, encoding?: string): Uint8Array => {
+    if (typeof input === 'string') {
+      return new TextEncoder().encode(input);
+    } else if (input instanceof ArrayBuffer) {
+      return new Uint8Array(input);
+    } else if (input instanceof Uint8Array) {
+      return input;
+    }
+    throw new Error('Unsupported input type for IsomorphicBuffer.from');
+  },
+
+  concat: (arrays: Uint8Array[]): Uint8Array => {
+    const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const arr of arrays) {
+      result.set(arr, offset);
+      offset += arr.length;
+    }
+    return result;
+  },
+
+  isBuffer: (obj: any): obj is Uint8Array => {
+    return obj instanceof Uint8Array;
+  },
+
+  toString: (buffer: Uint8Array, encoding?: string): string => {
+    return new TextDecoder(encoding || 'utf-8').decode(buffer);
+  }
+};
+
+// Isomorphic versions of utility functions that handle both Buffer and Uint8Array
+function isomorphicGetHeadersAndDataFromText(message: Uint8Array): [{ [key: string]: string }, Uint8Array] {
+  const messageString = IsomorphicBuffer.toString(message);
+  const headerEndIndex = messageString.indexOf('\r\n\r\n');
+
+  const headers: { [key: string]: string } = {};
+  if (headerEndIndex !== -1) {
+    const headerString = messageString.substring(0, headerEndIndex);
+    const headerLines = headerString.split('\r\n');
+    for (const line of headerLines) {
+      const [key, value] = line.split(':', 2);
+      if (key && value) {
+        headers[key] = value.trim();
+      }
+    }
+  }
+
+  const headerByteLength = new TextEncoder().encode(messageString.substring(0, headerEndIndex + 4)).length;
+  return [headers, message.slice(headerByteLength)];
+}
+
+function isomorphicGetHeadersAndDataFromBinary(message: Uint8Array): [{ [key: string]: string }, Uint8Array] {
+  if (message.length < 2) {
+    throw new Error('Message too short to contain header length');
+  }
+
+  const headerLength = (message[0] << 8) | message[1]; // Read big-endian uint16
+  const headers: { [key: string]: string } = {};
+
+  if (headerLength > 0 && headerLength + 2 <= message.length) {
+    const headerBytes = message.slice(2, headerLength + 2);
+    const headerString = IsomorphicBuffer.toString(headerBytes);
+    const headerLines = headerString.split('\r\n');
+    for (const line of headerLines) {
+      const [key, value] = line.split(':', 2);
+      if (key && value) {
+        headers[key] = value.trim();
+      }
+    }
+  }
+
+  return [headers, message.slice(headerLength + 2)];
+}
+
+// Isomorphic state interface using Uint8Array
+interface IsomorphicCommunicateState {
+  partialText: Uint8Array;
+  offsetCompensation: number;
+  lastDurationOffset: number;
+  streamWasCalled: boolean;
+}
+
+// Isomorphic TTSChunk type using Uint8Array
+interface IsomorphicTTSChunk {
+  type: "audio" | "WordBoundary";
+  data?: Uint8Array;
+  duration?: number;
+  offset?: number;
+  text?: string;
+}
 
 /**
  * Configuration options for the isomorphic Communicate class.
@@ -63,13 +156,13 @@ export interface IsomorphicCommunicateOptions {
  */
 export class IsomorphicCommunicate {
   private readonly ttsConfig: TTSConfig;
-  private readonly texts: Generator<Buffer>;
+  private readonly texts: Generator<Uint8Array>;
   private readonly proxy?: string;
   private readonly connectionTimeout?: number;
   private readonly isNode: boolean;
 
-  private state: CommunicateState = {
-    partialText: Buffer.from(''),
+  private state: IsomorphicCommunicateState = {
+    partialText: IsomorphicBuffer.from(''),
     offsetCompensation: 0,
     lastDurationOffset: 0,
     streamWasCalled: false,
@@ -93,10 +186,21 @@ export class IsomorphicCommunicate {
       throw new TypeError('text must be a string');
     }
 
-    this.texts = splitTextByByteLength(
-      escape(removeIncompatibleCharacters(text)),
-      calcMaxMesgSize(this.ttsConfig),
-    );
+    // Create a generator that yields Uint8Array chunks instead of Buffer chunks
+    const processedText = escape(removeIncompatibleCharacters(text));
+    const maxSize = calcMaxMesgSize(this.ttsConfig);
+
+    this.texts = (function* () {
+      for (const chunk of splitTextByByteLength(processedText, maxSize)) {
+        // Convert Buffer to Uint8Array for isomorphic compatibility
+        if (chunk instanceof Uint8Array) {
+          yield chunk;
+        } else {
+          // Handle Buffer (Node.js) by converting to Uint8Array
+          yield new Uint8Array(chunk);
+        }
+      }
+    })();
 
     this.proxy = options.proxy;
     this.connectionTimeout = options.connectionTimeout;
@@ -107,8 +211,8 @@ export class IsomorphicCommunicate {
       : typeof process !== 'undefined' && process.versions?.node !== undefined;
   }
 
-  private parseMetadata(data: Buffer): TTSChunk {
-    const metadata = JSON.parse(data.toString('utf-8'));
+  private parseMetadata(data: Uint8Array): IsomorphicTTSChunk {
+    const metadata = JSON.parse(IsomorphicBuffer.toString(data));
     for (const metaObj of metadata['Metadata']) {
       const metaType = metaObj['Type'];
       if (metaType === 'WordBoundary') {
@@ -153,11 +257,11 @@ export class IsomorphicCommunicate {
     return new WebSocket(url, wsOptions);
   }
 
-  private async * _stream(): AsyncGenerator<TTSChunk, void, unknown> {
+  private async * _stream(): AsyncGenerator<IsomorphicTTSChunk, void, unknown> {
     const url = `${WSS_URL}&Sec-MS-GEC=${await IsomorphicDRM.generateSecMsGec()}&Sec-MS-GEC-Version=${SEC_MS_GEC_VERSION}&ConnectionId=${connectId()}`;
 
     const websocket = await this.createWebSocket(url);
-    const messageQueue: (TTSChunk | Error | 'close')[] = [];
+    const messageQueue: (IsomorphicTTSChunk | Error | 'close')[] = [];
     let resolveMessage: (() => void) | null = null;
 
     // Handle different message event APIs
@@ -168,7 +272,7 @@ export class IsomorphicCommunicate {
 
       if (!binary && typeof data === 'string') {
         // Text message
-        const [headers, parsedData] = getHeadersAndDataFromText(Buffer.from(data));
+        const [headers, parsedData] = isomorphicGetHeadersAndDataFromText(IsomorphicBuffer.from(data));
 
         const path = headers['Path'];
         if (path === 'audio.metadata') {
@@ -188,13 +292,11 @@ export class IsomorphicCommunicate {
         }
       } else {
         // Binary message - handle both Node.js Buffer and browser ArrayBuffer/Blob
-        let bufferData: Buffer;
+        let bufferData: Uint8Array;
 
         if (data instanceof ArrayBuffer) {
-          bufferData = Buffer.from(data);
+          bufferData = IsomorphicBuffer.from(data);
         } else if (data instanceof Uint8Array) {
-          bufferData = Buffer.from(data);
-        } else if (Buffer.isBuffer(data)) {
           bufferData = data;
         } else {
           messageQueue.push(new UnexpectedResponse('Unknown binary data type'));
@@ -204,25 +306,20 @@ export class IsomorphicCommunicate {
         if (bufferData.length < 2) {
           messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
         } else {
-          const headerLength = bufferData.readUInt16BE(0);
-          if (headerLength > bufferData.length) {
-            messageQueue.push(new UnexpectedResponse('The header length is greater than the length of the data.'));
-          } else {
-            const [headers, audioData] = getHeadersAndDataFromBinary(bufferData);
+          const [headers, audioData] = isomorphicGetHeadersAndDataFromBinary(bufferData);
 
-            if (headers['Path'] !== 'audio') {
-              messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
-            } else {
-              const contentType = headers['Content-Type'];
-              if (contentType !== 'audio/mpeg') {
-                if (audioData.length > 0) {
-                  messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
-                }
-              } else if (audioData.length === 0) {
-                messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
-              } else {
-                messageQueue.push({ type: 'audio', data: audioData });
+          if (headers['Path'] !== 'audio') {
+            messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
+          } else {
+            const contentType = headers['Content-Type'];
+            if (contentType !== 'audio/mpeg') {
+              if (audioData.length > 0) {
+                messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
               }
+            } else if (audioData.length === 0) {
+              messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
+            } else {
+              messageQueue.push({ type: 'audio', data: audioData });
             }
           }
         }
@@ -286,7 +383,7 @@ export class IsomorphicCommunicate {
       ssmlHeadersPlusData(
         connectId(),
         dateToString(),
-        mkssml(this.ttsConfig, this.state.partialText),
+        mkssml(this.ttsConfig, IsomorphicBuffer.toString(this.state.partialText)),
       )
     );
 
@@ -321,7 +418,7 @@ export class IsomorphicCommunicate {
    * @throws {NoAudioReceived} If no audio data is received
    * @throws {WebSocketError} If WebSocket connection fails
    */
-  async * stream(): AsyncGenerator<TTSChunk, void, unknown> {
+  async * stream(): AsyncGenerator<IsomorphicTTSChunk, void, unknown> {
     if (this.state.streamWasCalled) {
       throw new Error('stream can only be called once.');
     }

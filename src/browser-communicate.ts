@@ -3,11 +3,8 @@ import {
   connectId,
   dateToString,
   escape,
-  getHeadersAndDataFromBinary,
-  getHeadersAndDataFromText,
   mkssml,
   removeIncompatibleCharacters,
-  splitTextByByteLength,
   ssmlHeadersPlusData,
   unescape
 } from './utils';
@@ -21,7 +18,130 @@ import { TTSConfig } from './tts_config';
 import { CommunicateState, TTSChunk } from './types';
 import { DEFAULT_VOICE, WSS_URL, WSS_HEADERS, SEC_MS_GEC_VERSION } from './constants';
 import { BrowserDRM } from './browser-drm';
-import { Buffer } from 'buffer';
+
+// Browser-specific types (avoiding Node.js Buffer dependency)
+export type BrowserTTSChunk = {
+  type: "audio" | "WordBoundary";
+  data?: Uint8Array;
+  duration?: number;
+  offset?: number;
+  text?: string;
+};
+
+export type BrowserCommunicateState = {
+  partialText: Uint8Array;
+  offsetCompensation: number;
+  lastDurationOffset: number;
+  streamWasCalled: boolean;
+};
+
+// Browser-compatible Buffer utilities
+class BrowserBuffer {
+  static from(input: string | ArrayBuffer | Uint8Array, encoding?: string): Uint8Array {
+    if (typeof input === 'string') {
+      return new TextEncoder().encode(input);
+    } else if (input instanceof ArrayBuffer) {
+      return new Uint8Array(input);
+    } else if (input instanceof Uint8Array) {
+      return input;
+    }
+    throw new Error('Unsupported input type for BrowserBuffer.from');
+  }
+
+  static concat(arrays: Uint8Array[]): Uint8Array {
+    const totalLength = arrays.reduce((sum, arr) => sum + arr.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const arr of arrays) {
+      result.set(arr, offset);
+      offset += arr.length;
+    }
+    return result;
+  }
+}
+
+// Browser-compatible versions of utility functions
+function browserGetHeadersAndDataFromText(message: Uint8Array): [{ [key: string]: string }, Uint8Array] {
+  const messageString = new TextDecoder().decode(message);
+  const headerEndIndex = messageString.indexOf('\r\n\r\n');
+
+  const headers: { [key: string]: string } = {};
+  if (headerEndIndex !== -1) {
+    const headerString = messageString.substring(0, headerEndIndex);
+    const headerLines = headerString.split('\r\n');
+    for (const line of headerLines) {
+      const [key, value] = line.split(':', 2);
+      if (key && value) {
+        headers[key] = value.trim();
+      }
+    }
+  }
+
+  const headerByteLength = new TextEncoder().encode(messageString.substring(0, headerEndIndex + 4)).length;
+  return [headers, message.slice(headerByteLength)];
+}
+
+function browserGetHeadersAndDataFromBinary(message: Uint8Array): [{ [key: string]: string }, Uint8Array] {
+  if (message.length < 2) {
+    throw new Error('Message too short to contain header length');
+  }
+
+  const headerLength = (message[0] << 8) | message[1]; // Read big-endian uint16
+  const headers: { [key: string]: string } = {};
+
+  if (headerLength > 0 && headerLength + 2 <= message.length) {
+    const headerBytes = message.slice(2, headerLength + 2);
+    const headerString = new TextDecoder().decode(headerBytes);
+    const headerLines = headerString.split('\r\n');
+    for (const line of headerLines) {
+      const [key, value] = line.split(':', 2);
+      if (key && value) {
+        headers[key] = value.trim();
+      }
+    }
+  }
+
+  return [headers, message.slice(headerLength + 2)];
+}
+
+function browserSplitTextByByteLength(text: string, byteLength: number): Generator<Uint8Array> {
+  return (function* () {
+    let buffer = new TextEncoder().encode(text);
+
+    if (byteLength <= 0) {
+      throw new Error("byteLength must be greater than 0");
+    }
+
+    while (buffer.length > byteLength) {
+      let splitAt = byteLength;
+
+      // Try to find a good split point (space or newline)
+      const slice = buffer.slice(0, byteLength);
+      const sliceText = new TextDecoder().decode(slice);
+      const lastNewline = sliceText.lastIndexOf('\n');
+      const lastSpace = sliceText.lastIndexOf(' ');
+
+      if (lastNewline > 0) {
+        splitAt = new TextEncoder().encode(sliceText.substring(0, lastNewline)).length;
+      } else if (lastSpace > 0) {
+        splitAt = new TextEncoder().encode(sliceText.substring(0, lastSpace)).length;
+      }
+
+      const chunk = buffer.slice(0, splitAt);
+      const chunkText = new TextDecoder().decode(chunk).trim();
+      if (chunkText) {
+        yield new TextEncoder().encode(chunkText);
+      }
+
+      buffer = buffer.slice(splitAt);
+    }
+
+    const remainingText = new TextDecoder().decode(buffer).trim();
+    if (remainingText) {
+      yield new TextEncoder().encode(remainingText);
+    }
+  })();
+}
 
 /**
  * Configuration options for the browser Communicate class.
@@ -58,11 +178,11 @@ export interface BrowserCommunicateOptions {
  */
 export class BrowserCommunicate {
   private readonly ttsConfig: TTSConfig;
-  private readonly texts: Generator<Buffer>;
+  private readonly texts: Generator<Uint8Array>;
   private readonly connectionTimeout?: number;
 
-  private state: CommunicateState = {
-    partialText: Buffer.from(''),
+  private state: BrowserCommunicateState = {
+    partialText: BrowserBuffer.from(''),
     offsetCompensation: 0,
     lastDurationOffset: 0,
     streamWasCalled: false,
@@ -86,7 +206,7 @@ export class BrowserCommunicate {
       throw new TypeError('text must be a string');
     }
 
-    this.texts = splitTextByByteLength(
+    this.texts = browserSplitTextByByteLength(
       escape(removeIncompatibleCharacters(text)),
       calcMaxMesgSize(this.ttsConfig),
     );
@@ -94,8 +214,8 @@ export class BrowserCommunicate {
     this.connectionTimeout = options.connectionTimeout;
   }
 
-  private parseMetadata(data: Buffer): TTSChunk {
-    const metadata = JSON.parse(data.toString('utf-8'));
+  private parseMetadata(data: Uint8Array): BrowserTTSChunk {
+    const metadata = JSON.parse(new TextDecoder().decode(data));
     for (const metaObj of metadata['Metadata']) {
       const metaType = metaObj['Type'];
       if (metaType === 'WordBoundary') {
@@ -116,11 +236,11 @@ export class BrowserCommunicate {
     throw new UnexpectedResponse('No WordBoundary metadata found');
   }
 
-  private async * _stream(): AsyncGenerator<TTSChunk, void, unknown> {
+  private async * _stream(): AsyncGenerator<BrowserTTSChunk, void, unknown> {
     const url = `${WSS_URL}&Sec-MS-GEC=${await BrowserDRM.generateSecMsGec()}&Sec-MS-GEC-Version=${SEC_MS_GEC_VERSION}&ConnectionId=${connectId()}`;
 
     const websocket = new WebSocket(url);
-    const messageQueue: (TTSChunk | Error | 'close')[] = [];
+    const messageQueue: (BrowserTTSChunk | Error | 'close')[] = [];
     let resolveMessage: (() => void) | null = null;
 
     // Set connection timeout if specified
@@ -145,7 +265,7 @@ export class BrowserCommunicate {
 
       if (typeof data === 'string') {
         // Text message
-        const [headers, parsedData] = getHeadersAndDataFromText(Buffer.from(data));
+        const [headers, parsedData] = browserGetHeadersAndDataFromText(BrowserBuffer.from(data));
 
         const path = headers['Path'];
         if (path === 'audio.metadata') {
@@ -165,15 +285,35 @@ export class BrowserCommunicate {
         }
       } else if (data instanceof ArrayBuffer) {
         // Binary message
-        const bufferData = Buffer.from(data);
+        const bufferData = BrowserBuffer.from(data);
         if (bufferData.length < 2) {
           messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
         } else {
-          const headerLength = bufferData.readUInt16BE(0);
-          if (headerLength > bufferData.length) {
-            messageQueue.push(new UnexpectedResponse('The header length is greater than the length of the data.'));
+          const [headers, audioData] = browserGetHeadersAndDataFromBinary(bufferData);
+
+          if (headers['Path'] !== 'audio') {
+            messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
           } else {
-            const [headers, audioData] = getHeadersAndDataFromBinary(bufferData);
+            const contentType = headers['Content-Type'];
+            if (contentType !== 'audio/mpeg') {
+              if (audioData.length > 0) {
+                messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
+              }
+            } else if (audioData.length === 0) {
+              messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
+            } else {
+              messageQueue.push({ type: 'audio', data: audioData });
+            }
+          }
+        }
+      } else if (data instanceof Blob) {
+        // Handle Blob data (convert to ArrayBuffer first)
+        data.arrayBuffer().then(arrayBuffer => {
+          const bufferData = BrowserBuffer.from(arrayBuffer);
+          if (bufferData.length < 2) {
+            messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
+          } else {
+            const [headers, audioData] = browserGetHeadersAndDataFromBinary(bufferData);
 
             if (headers['Path'] !== 'audio') {
               messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
@@ -187,36 +327,6 @@ export class BrowserCommunicate {
                 messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
               } else {
                 messageQueue.push({ type: 'audio', data: audioData });
-              }
-            }
-          }
-        }
-      } else if (data instanceof Blob) {
-        // Handle Blob data (convert to ArrayBuffer first)
-        data.arrayBuffer().then(arrayBuffer => {
-          const bufferData = Buffer.from(arrayBuffer);
-          if (bufferData.length < 2) {
-            messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
-          } else {
-            const headerLength = bufferData.readUInt16BE(0);
-            if (headerLength > bufferData.length) {
-              messageQueue.push(new UnexpectedResponse('The header length is greater than the length of the data.'));
-            } else {
-              const [headers, audioData] = getHeadersAndDataFromBinary(bufferData);
-
-              if (headers['Path'] !== 'audio') {
-                messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
-              } else {
-                const contentType = headers['Content-Type'];
-                if (contentType !== 'audio/mpeg') {
-                  if (audioData.length > 0) {
-                    messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
-                  }
-                } else if (audioData.length === 0) {
-                  messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
-                } else {
-                  messageQueue.push({ type: 'audio', data: audioData });
-                }
               }
             }
           }
@@ -279,7 +389,7 @@ export class BrowserCommunicate {
       ssmlHeadersPlusData(
         connectId(),
         dateToString(),
-        mkssml(this.ttsConfig, this.state.partialText),
+        mkssml(this.ttsConfig, new TextDecoder().decode(this.state.partialText)),
       )
     );
 
@@ -308,12 +418,12 @@ export class BrowserCommunicate {
    * Streams text-to-speech synthesis results using native browser WebSocket.
    * Uses only browser-native APIs, avoiding Node.js dependencies.
    * 
-   * @yields TTSChunk - Audio data or word boundary information
+   * @yields BrowserTTSChunk - Audio data or word boundary information
    * @throws {Error} If called more than once
    * @throws {NoAudioReceived} If no audio data is received
    * @throws {WebSocketError} If WebSocket connection fails
    */
-  async * stream(): AsyncGenerator<TTSChunk, void, unknown> {
+  async * stream(): AsyncGenerator<BrowserTTSChunk, void, unknown> {
     if (this.state.streamWasCalled) {
       throw new Error('stream can only be called once.');
     }

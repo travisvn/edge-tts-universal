@@ -42,8 +42,15 @@ export {
 
 export { IsomorphicDRM as DRM } from './isomorphic-drm';
 
-// Simple API using isomorphic backend
-export { EdgeTTS, ProsodyOptions, WordBoundary, SynthesisResult, createVTT, createSRT } from './simple';
+// Simple API using isomorphic backend (all from isomorphic-simple to avoid Node.js deps)
+export {
+  IsomorphicEdgeTTS as EdgeTTS,
+  ProsodyOptions,
+  WordBoundary,
+  SynthesisResult,
+  createVTT,
+  createSRT
+} from './isomorphic-simple';
 
 // Utility for creating subtitles (works everywhere)
 export { SubMaker } from './submaker';
