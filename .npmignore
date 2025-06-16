@@ -1,0 +1,43 @@
+# Source files - only ship built dist/ files
+src/
+examples/
+schemas/
+
+# Development files
+tsconfig.json
+tsup.config.ts
+typedoc.json
+.gitignore
+.eslintrc*
+.prettierrc*
+
+# Documentation (keep README.md but exclude others)
+FEATURES.md
+API.md
+
+# Test files
+test/
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+
+# Development dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts that aren't needed
+*.tsbuildinfo 
