@@ -42,7 +42,7 @@ export { SubMaker } from './submaker';
 export { VoicesManager, listVoices } from './voices';
 
 // Simple API (works in both Node.js and browsers when using appropriate exports)
-export { EdgeTTS, ProsodyOptions, WordBoundary, SynthesisResult, createVTT, createSRT } from './simple';
+export { EdgeTTS, ProsodyOptions, WordBoundary, SynthesisResult, createVTT, createSRT, UniversalEdgeTTS } from './simple';
 
 // Universal/Isomorphic API (works in both Node.js and browsers)
 export {
@@ -55,6 +55,36 @@ export {
   FetchError
 } from './isomorphic-voices';
 export { IsomorphicDRM } from './isomorphic-drm';
+
+// Simple isomorphic API
+export {
+  IsomorphicEdgeTTS,
+  ProsodyOptions as IsomorphicProsodyOptions,
+  WordBoundary as IsomorphicWordBoundary,
+  SynthesisResult as IsomorphicSynthesisResult,
+  createVTT as createVTTIsomorphic,
+  createSRT as createSRTIsomorphic
+} from './isomorphic-simple';
+
+// Universal aliases (preferred naming)
+export {
+  IsomorphicCommunicate as UniversalCommunicate,
+  IsomorphicCommunicateOptions as UniversalCommunicateOptions
+} from './isomorphic-communicate';
+export {
+  IsomorphicVoicesManager as UniversalVoicesManager,
+  listVoices as listVoicesUniversal,
+  FetchError as UniversalFetchError
+} from './isomorphic-voices';
+export { IsomorphicDRM as UniversalDRM } from './isomorphic-drm';
+export {
+  IsomorphicEdgeTTS as UniversalEdgeTTS_Isomorphic,
+  ProsodyOptions as UniversalProsodyOptions_Isomorphic,
+  WordBoundary as UniversalWordBoundary_Isomorphic,
+  SynthesisResult as UniversalSynthesisResult_Isomorphic,
+  createVTT as createVTTUniversal_Isomorphic,
+  createSRT as createSRTUniversal_Isomorphic
+} from './isomorphic-simple';
 
 // Browser-specific API (uses native browser APIs only)
 export {

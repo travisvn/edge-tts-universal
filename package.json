@@ -132,6 +132,7 @@
     "example:streaming": "tsx examples/streaming.ts",
     "example:voices": "tsx examples/listVoices.ts",
     "example:universal": "tsx examples/universal-detection.ts",
+    "example:universal-api": "tsx examples/universal-api.ts",
     "example:isomorphic": "tsx examples/isomorphic-example.ts",
     "size": "size-limit",
     "analyze": "npx @next/bundle-analyzer",

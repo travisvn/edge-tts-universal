@@ -182,4 +182,7 @@ export function createSRT(wordBoundaries: WordBoundary[]): string {
     srtContent += `${word.text}\n\n`;
   });
   return srtContent;
-} 
+}
+
+// Universal alias for EdgeTTS (preferred naming)
+export { EdgeTTS as UniversalEdgeTTS }; 

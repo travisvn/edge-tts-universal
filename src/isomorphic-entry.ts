@@ -57,4 +57,22 @@ export { SubMaker } from './submaker';
 
 // Common types and exceptions
 export * from './exceptions';
-export * from './types'; 
+export * from './types';
+
+// Universal aliases (preferred naming convention)
+export {
+  IsomorphicCommunicate as UniversalCommunicate,
+  IsomorphicCommunicateOptions as UniversalCommunicateOptions
+} from './isomorphic-communicate';
+
+export {
+  IsomorphicVoicesManager as UniversalVoicesManager,
+  listVoices as listVoicesUniversal,
+  FetchError as UniversalFetchError
+} from './isomorphic-voices';
+
+export { IsomorphicDRM as UniversalDRM } from './isomorphic-drm';
+
+export {
+  IsomorphicEdgeTTS as UniversalEdgeTTS
+} from './isomorphic-simple'; 
