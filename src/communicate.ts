@@ -95,7 +95,8 @@ export class Communicate {
 
     this.texts = splitTextByByteLength(
       escape(removeIncompatibleCharacters(text)),
-      calcMaxMesgSize(this.ttsConfig),
+      // calcMaxMesgSize(this.ttsConfig),
+      4096,
     );
 
     this.proxy = options.proxy;

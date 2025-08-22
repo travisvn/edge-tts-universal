@@ -188,7 +188,8 @@ export class IsomorphicCommunicate {
 
     // Create a generator that yields Uint8Array chunks instead of Buffer chunks
     const processedText = escape(removeIncompatibleCharacters(text));
-    const maxSize = calcMaxMesgSize(this.ttsConfig);
+    // const maxSize = calcMaxMesgSize(this.ttsConfig);
+    const maxSize = 4096;
 
     this.texts = (function* () {
       for (const chunk of splitTextByByteLength(processedText, maxSize)) {

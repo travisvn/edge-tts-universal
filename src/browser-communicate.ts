@@ -208,7 +208,8 @@ export class BrowserCommunicate {
 
     this.texts = browserSplitTextByByteLength(
       browserEscape(browserRemoveIncompatibleCharacters(text)),
-      browserCalcMaxMesgSize(this.ttsConfig.voice, this.ttsConfig.rate, this.ttsConfig.volume, this.ttsConfig.pitch),
+      // browserCalcMaxMesgSize(this.ttsConfig.voice, this.ttsConfig.rate, this.ttsConfig.volume, this.ttsConfig.pitch),
+      4096,
     );
 
     this.connectionTimeout = options.connectionTimeout;
