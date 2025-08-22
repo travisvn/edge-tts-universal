@@ -1,7 +1,5 @@
 import { TRUSTED_CLIENT_TOKEN } from './constants';
 import { SkewAdjustmentError } from "./exceptions";
-import { getCrypto } from './runtime-detection';
-import type { Response } from 'cross-fetch';
 
 const WIN_EPOCH = 11644473600;
 const S_TO_NS = 1e9;
@@ -29,7 +27,7 @@ export class IsomorphicDRM {
     }
   }
 
-  static handleClientResponseError(response: Response | { status: number; headers: Record<string, string> }) {
+  static handleClientResponseError(response: { status: number; headers: any }) {
     let serverDate: string | null = null;
 
     if ('headers' in response && typeof response.headers === 'object') {
@@ -62,14 +60,14 @@ export class IsomorphicDRM {
 
     const strToHash = `${ticks.toFixed(0)}${TRUSTED_CLIENT_TOKEN}`;
 
-    const crypto = getCrypto();
-    if (!crypto || !crypto.subtle) {
-      throw new Error('Crypto API not available');
+    // Use Web Crypto API directly - available in both Node.js 16+ and browsers
+    if (!globalThis.crypto || !globalThis.crypto.subtle) {
+      throw new Error('Web Crypto API not available');
     }
 
     const encoder = new TextEncoder();
     const data = encoder.encode(strToHash);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
   }

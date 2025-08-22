@@ -10,7 +10,7 @@ import {
   splitTextByByteLength,
   ssmlHeadersPlusData,
   unescape
-} from './utils';
+} from './isomorphic-utils';
 import {
   NoAudioReceived,
   UnexpectedResponse,
@@ -19,9 +19,7 @@ import {
 } from "./exceptions";
 import { TTSConfig } from './tts_config';
 import { CommunicateState, TTSChunk } from './types';
-// Use isomorphic WebSocket that works in both Node.js and browsers
-import WebSocket from 'isomorphic-ws';
-import { DEFAULT_VOICE, WSS_URL, WSS_HEADERS, SEC_MS_GEC_VERSION } from './constants';
+import { DEFAULT_VOICE, WSS_URL, SEC_MS_GEC_VERSION, WSS_HEADERS } from './constants';
 import { IsomorphicDRM } from './isomorphic-drm';
 
 // Isomorphic buffer handling - works in both Node.js and browsers
@@ -157,9 +155,7 @@ export interface IsomorphicCommunicateOptions {
 export class IsomorphicCommunicate {
   private readonly ttsConfig: TTSConfig;
   private readonly texts: Generator<Uint8Array>;
-  private readonly proxy?: string;
-  private readonly connectionTimeout?: number;
-  private readonly isNode: boolean;
+  // Universal build - proxy and environment detection removed for compatibility
 
   private state: IsomorphicCommunicateState = {
     partialText: IsomorphicBuffer.from(''),
@@ -193,23 +189,13 @@ export class IsomorphicCommunicate {
 
     this.texts = (function* () {
       for (const chunk of splitTextByByteLength(processedText, maxSize)) {
-        // Convert Buffer to Uint8Array for isomorphic compatibility
-        if (chunk instanceof Uint8Array) {
-          yield chunk;
-        } else {
-          // Handle Buffer (Node.js) by converting to Uint8Array
-          yield new Uint8Array(chunk);
-        }
+        // splitTextByByteLength returns strings, convert to Uint8Array
+        yield new TextEncoder().encode(chunk);
       }
     })();
 
-    this.proxy = options.proxy;
-    this.connectionTimeout = options.connectionTimeout;
-
-    // Detect environment
-    this.isNode = typeof globalThis !== 'undefined'
-      ? globalThis.process?.versions?.node !== undefined
-      : typeof process !== 'undefined' && process.versions?.node !== undefined;
+    // Note: proxy and connectionTimeout are not supported in universal builds
+    // for maximum compatibility across environments
   }
 
   private parseMetadata(data: Uint8Array): IsomorphicTTSChunk {
@@ -235,26 +221,11 @@ export class IsomorphicCommunicate {
   }
 
   private async createWebSocket(url: string): Promise<WebSocket> {
+    // Use native WebSocket constructor - available in both Node.js 16+ and browsers
+    // Note: Advanced features like proxy support are not available in universal builds
     const wsOptions: any = {
       headers: WSS_HEADERS,
     };
-
-    // Add timeout if specified
-    if (this.connectionTimeout) {
-      wsOptions.timeout = this.connectionTimeout;
-    }
-
-    // Add proxy support for Node.js environment only
-    if (this.isNode && this.proxy) {
-      try {
-        // Dynamic import for Node.js only
-        const { HttpsProxyAgent } = await import('https-proxy-agent');
-        wsOptions.agent = new HttpsProxyAgent(this.proxy);
-      } catch (e) {
-        console.warn('Proxy not supported in this environment:', e);
-      }
-    }
-
     return new WebSocket(url, wsOptions);
   }
 
@@ -328,43 +299,24 @@ export class IsomorphicCommunicate {
       if (resolveMessage) resolveMessage();
     };
 
-    // Set up event listeners with environment-specific handling
-    if (this.isNode) {
-      // Node.js style events
-      websocket.on('message', handleMessage);
-      websocket.on('error', (error: Error) => {
-        messageQueue.push(new WebSocketError(error.message));
-        if (resolveMessage) resolveMessage();
-      });
-      websocket.on('close', () => {
-        messageQueue.push('close');
-        if (resolveMessage) resolveMessage();
-      });
-    } else {
-      // Browser style events
-      websocket.onmessage = handleMessage;
-      websocket.onerror = (error: any) => {
-        messageQueue.push(new WebSocketError(error.message || 'WebSocket error'));
-        if (resolveMessage) resolveMessage();
-      };
-      websocket.onclose = () => {
-        messageQueue.push('close');
-        if (resolveMessage) resolveMessage();
-      };
-    }
+    // Use standard WebSocket event handlers that work universally
+    websocket.onmessage = handleMessage;
+    websocket.onerror = (error: any) => {
+      messageQueue.push(new WebSocketError(error.message || 'WebSocket error'));
+      if (resolveMessage) resolveMessage();
+    };
+    websocket.onclose = () => {
+      messageQueue.push('close');
+      if (resolveMessage) resolveMessage();
+    };
 
     // Wait for connection
     await new Promise<void>((resolve, reject) => {
       const onOpen = () => resolve();
       const onError = (error: any) => reject(error);
 
-      if (this.isNode) {
-        websocket.on('open', onOpen);
-        websocket.on('error', onError);
-      } else {
-        websocket.onopen = onOpen;
-        websocket.onerror = onError;
-      }
+      websocket.onopen = onOpen;
+      websocket.onerror = onError;
     });
 
     // Send configuration

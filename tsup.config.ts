@@ -5,7 +5,6 @@ export default defineConfig([
   {
     entry: {
       index: 'src/index.ts',
-      isomorphic: 'src/isomorphic-entry.ts',
       'runtime-detection': 'src/runtime-detection.ts',
     },
     format: ['cjs', 'esm'],
@@ -29,6 +28,28 @@ export default defineConfig([
       'buffer'
     ]
   },
+  // Universal/Isomorphic builds - truly universal with all dependencies bundled
+  {
+    entry: {
+      isomorphic: 'src/isomorphic-entry.ts',
+    },
+    format: ['cjs', 'esm'],
+    dts: true,
+    sourcemap: true,
+    clean: false,
+    splitting: false,
+    treeshake: true,
+    minify: false,
+    target: 'es2020',
+    outDir: 'dist',
+    platform: 'neutral', // Neither node nor browser - truly universal
+    external: [
+      // Bundle everything for universal compatibility
+    ],
+    define: {
+      'process.env.NODE_ENV': '"production"'
+    }
+  },
   // Browser builds (separate config to avoid conflicts)
   {
     entry: {
@@ -38,7 +59,7 @@ export default defineConfig([
     format: ['cjs', 'esm'],
     dts: true,
     sourcemap: true,
-    clean: false, // Don't clean since Node.js build already ran
+    clean: false, // Don't clean since previous builds already ran
     splitting: false,
     treeshake: true,
     minify: false,

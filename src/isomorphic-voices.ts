@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch';
+// Use native fetch API available in both Node.js 18+ and browsers
 import { SEC_MS_GEC_VERSION, VOICE_HEADERS, VOICE_LIST_URL } from './constants';
 import { IsomorphicDRM } from './isomorphic-drm';
 import { Voice, VoicesManagerFind, VoicesManagerVoice } from './types';
