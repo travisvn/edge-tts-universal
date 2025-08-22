@@ -221,12 +221,28 @@ export class IsomorphicCommunicate {
   }
 
   private async createWebSocket(url: string): Promise<WebSocket> {
-    // Use native WebSocket constructor - available in both Node.js 16+ and browsers
-    // Note: Advanced features like proxy support are not available in universal builds
-    const wsOptions: any = {
-      headers: WSS_HEADERS,
-    };
-    return new WebSocket(url, wsOptions);
+    // Handle WebSocket creation across different environments
+    const isNode = typeof globalThis !== 'undefined' 
+      ? globalThis.process?.versions?.node !== undefined
+      : typeof process !== 'undefined' && process.versions?.node !== undefined;
+    
+    if (isNode) {
+      // Node.js: Try to dynamically import ws library for better compatibility
+      try {
+        const { default: WS } = await import('ws');
+        return new WS(url, {
+          headers: WSS_HEADERS,
+        }) as any;
+      } catch (error) {
+        // Fall back to native Node.js WebSocket if ws not available
+        console.warn('ws library not available, using native WebSocket without headers');
+        return new WebSocket(url);
+      }
+    } else {
+      // Browser/Deno: Use native WebSocket
+      // Browsers automatically set appropriate headers like Origin
+      return new WebSocket(url);
+    }
   }
 
   private async * _stream(): AsyncGenerator<IsomorphicTTSChunk, void, unknown> {
