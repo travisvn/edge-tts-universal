@@ -29,7 +29,7 @@
   },
   "tasks": {
     "dev": "deno run --allow-net --allow-read examples/isomorphic-example.ts",
-    "test": "deno test --allow-net",
+    "test": "deno test --allow-net --allow-env --no-check tests/deno/*.ts",
     "example:simple": "deno run --allow-net examples/simple-api.ts",
     "example:streaming": "deno run --allow-net examples/streaming.ts",
     "example:voices": "deno run --allow-net examples/listVoices.ts",

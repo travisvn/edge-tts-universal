@@ -1,10 +1,10 @@
 import { assertEquals, assert } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { IsomorphicVoicesManager, listVoicesIsomorphic } from "../../src/isomorphic-voices.ts";
+import { VoicesManager, listVoices } from "../../dist/isomorphic.js";
 
-Deno.test("Voice Management - listVoicesIsomorphic returns array of voices", async () => {
+Deno.test("Voice Management - listVoices returns array of voices", async () => {
   try {
-    const voices = await listVoicesIsomorphic();
-    assert(Array.isArray(voices), 'listVoicesIsomorphic should return an array');
+    const voices = await listVoices();
+    assert(Array.isArray(voices), 'listVoices should return an array');
     assert(voices.length > 0, 'Should have at least one voice');
     
     // Check voice structure
@@ -19,9 +19,9 @@ Deno.test("Voice Management - listVoicesIsomorphic returns array of voices", asy
   }
 });
 
-Deno.test("Voice Management - IsomorphicVoicesManager can filter voices", async () => {
+Deno.test("Voice Management - VoicesManager can filter voices", async () => {
   try {
-    const voicesManager = await IsomorphicVoicesManager.create();
+    const voicesManager = await VoicesManager.create();
     
     // Test finding English voices
     const englishVoices = voicesManager.find({ Language: 'en' });

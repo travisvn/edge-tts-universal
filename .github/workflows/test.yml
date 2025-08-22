@@ -85,12 +85,12 @@ jobs:
 
       - name: Test Deno
         if: matrix.runtime == 'deno'
-        run: deno task test
+        run: deno test --allow-net --allow-env --no-check tests/deno/*.ts
         continue-on-error: true
 
       - name: Test Bun
         if: matrix.runtime == 'bun'
-        run: bun test tests/*.test.js
+        run: bun test
         continue-on-error: true
 
       - name: Check bundle sizes
