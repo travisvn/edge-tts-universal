@@ -153,3 +153,6 @@ bin/
 
 docs/
 .notes/
+
+CLAUDE.md
+.cursorignore
