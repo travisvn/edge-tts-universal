@@ -47,20 +47,20 @@ async function createTTSInstance(text: string, voice?: string) {
   switch (env.platform) {
     case 'node':
       // Use full Node.js API with all features
-      const { EdgeTTS } = await import('../src/index');
+      const { EdgeTTS } = await import('../dist/index.js');
       return new EdgeTTS(text, voice);
 
     case 'browser':
       // Use browser-specific API for optimal bundle size
-      const { EdgeTTSBrowser } = await import('../src/browser');
-      return new EdgeTTSBrowser(text, voice);
+      const { EdgeTTS: BrowserEdgeTTS } = await import('../dist/browser.js');
+      return new BrowserEdgeTTS(text, voice);
 
     case 'deno':
     case 'bun':
     default:
       // Use isomorphic API for maximum compatibility
-      const { EdgeTTS: UniversalTTS } = await import('../src/simple');
-      return new UniversalTTS(text, voice);
+      const { EdgeTTS: IsomorphicTTS } = await import('../dist/isomorphic.js');
+      return new IsomorphicTTS(text, voice);
   }
 }
 
@@ -113,7 +113,8 @@ async function universalSynthesis() {
 export { detectEnvironment, createTTSInstance, universalSynthesis };
 
 // Auto-run in appropriate environments
-if (typeof module !== 'undefined' && require.main === module) {
+// ESM equivalent check
+if (typeof process !== 'undefined' && import.meta.url === `file://${process.argv[1]}`) {
   // Node.js
   universalSynthesis().catch(console.error);
 } else if (typeof globalThis !== 'undefined') {

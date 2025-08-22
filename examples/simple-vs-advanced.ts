@@ -1,4 +1,4 @@
-import { EdgeTTS, createVTT, createSRT, Communicate } from '../src';
+import { EdgeTTS, createVTT, createSRT, Communicate } from '../dist/index.js';
 
 async function simpleApiExample() {
   console.log('=== Simple API Example (like code 54.ts) ===');

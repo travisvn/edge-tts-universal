@@ -1,4 +1,4 @@
-import { Communicate, SubMaker } from "../src";
+import { Communicate, SubMaker } from "../dist/index.js";
 
 const TEXT = "This is a test of the streaming functionality, with subtitles.";
 const VOICE = "en-GB-SoniaNeural";

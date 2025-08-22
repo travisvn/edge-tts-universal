@@ -7,7 +7,7 @@ import {
   IsomorphicCommunicate,
   IsomorphicVoicesManager,
   listVoicesIsomorphic
-} from '../src';
+} from '../dist/index.js';
 
 const TEXT = 'Hello! This is an isomorphic text-to-speech example that works in both Node.js and browsers.';
 const VOICE = 'en-US-EmmaMultilingualNeural';
@@ -36,7 +36,7 @@ async function isomorphicExample() {
       pitch: '+0Hz'
     });
 
-    const audioChunks: Buffer[] = [];
+    const audioChunks: Uint8Array[] = [];
     let wordCount = 0;
 
     for await (const chunk of communicate.stream()) {
@@ -63,7 +63,15 @@ async function isomorphicExample() {
       const path = await import('path');
 
       const outputFile = path.join(process.cwd(), 'isomorphic-output.mp3');
-      await fs.writeFile(outputFile, Buffer.concat(audioChunks));
+      // Concatenate Uint8Arrays
+      const totalLength = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+      const concatenated = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of audioChunks) {
+        concatenated.set(chunk, offset);
+        offset += chunk.length;
+      }
+      await fs.writeFile(outputFile, concatenated);
       console.log(`💾 Node.js: Audio saved to ${outputFile}`);
     } else {
       // Browser - create audio element
@@ -99,12 +107,11 @@ Solutions:
 }
 
 // Universal module pattern - works in both Node.js and browsers
-if (typeof module !== 'undefined' && module.exports) {
+// ESM equivalent check
+if (typeof process !== 'undefined' && import.meta.url === `file://${process.argv[1]}`) {
   // Node.js
-  if (require.main === module) {
-    isomorphicExample().catch(console.error);
-  }
-} else {
+  isomorphicExample().catch(console.error);
+} else if (typeof globalThis !== 'undefined') {
   // Browser - expose function globally
   (globalThis as any).runIsomorphicExample = isomorphicExample;
 }

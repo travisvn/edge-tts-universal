@@ -262,41 +262,58 @@ export class IsomorphicCommunicate {
           messageQueue.push(new UnknownResponse(`Unknown path received: ${path}`));
         }
       } else {
-        // Binary message - handle both Node.js Buffer and browser ArrayBuffer/Blob
+        // Binary message - handle various binary data types across platforms
         let bufferData: Uint8Array;
 
         if (data instanceof ArrayBuffer) {
           bufferData = IsomorphicBuffer.from(data);
         } else if (data instanceof Uint8Array) {
           bufferData = data;
+        } else if (typeof Buffer !== 'undefined' && data instanceof Buffer) {
+          // Node.js Buffer support
+          bufferData = new Uint8Array(data);
+        } else if (typeof Blob !== 'undefined' && data instanceof Blob) {
+          // Handle Blob from native Node.js WebSocket - process async
+          data.arrayBuffer().then(arrayBuffer => {
+            const blobBufferData = new Uint8Array(arrayBuffer);
+            processBinaryData(blobBufferData);
+          }).catch(error => {
+            messageQueue.push(new UnexpectedResponse(`Failed to process Blob data: ${error.message}`));
+            if (resolveMessage) resolveMessage();
+          });
+          return;
         } else {
-          messageQueue.push(new UnexpectedResponse('Unknown binary data type'));
+          messageQueue.push(new UnexpectedResponse(`Unknown binary data type: ${typeof data} ${data.constructor?.name}`));
           return;
         }
 
-        if (bufferData.length < 2) {
-          messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
-        } else {
-          const [headers, audioData] = isomorphicGetHeadersAndDataFromBinary(bufferData);
-
-          if (headers['Path'] !== 'audio') {
-            messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
-          } else {
-            const contentType = headers['Content-Type'];
-            if (contentType !== 'audio/mpeg') {
-              if (audioData.length > 0) {
-                messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
-              }
-            } else if (audioData.length === 0) {
-              messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
-            } else {
-              messageQueue.push({ type: 'audio', data: audioData });
-            }
-          }
-        }
+        processBinaryData(bufferData);
       }
 
       if (resolveMessage) resolveMessage();
+    };
+
+    const processBinaryData = (bufferData: Uint8Array) => {
+      if (bufferData.length < 2) {
+        messageQueue.push(new UnexpectedResponse('We received a binary message, but it is missing the header length.'));
+      } else {
+        const [headers, audioData] = isomorphicGetHeadersAndDataFromBinary(bufferData);
+
+        if (headers['Path'] !== 'audio') {
+          messageQueue.push(new UnexpectedResponse('Received binary message, but the path is not audio.'));
+        } else {
+          const contentType = headers['Content-Type'];
+          if (contentType !== 'audio/mpeg') {
+            if (audioData.length > 0) {
+              messageQueue.push(new UnexpectedResponse('Received binary message, but with an unexpected Content-Type.'));
+            }
+          } else if (audioData.length === 0) {
+            messageQueue.push(new UnexpectedResponse('Received binary message, but it is missing the audio data.'));
+          } else {
+            messageQueue.push({ type: 'audio', data: audioData });
+          }
+        }
+      }
     };
 
     // Use standard WebSocket event handlers that work universally

@@ -161,3 +161,5 @@ CLAUDE.md
 
 # Deno lockfile - let CI generate fresh
 deno.lock
+
+*.vtt

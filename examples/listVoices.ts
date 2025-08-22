@@ -1,4 +1,4 @@
-import { VoicesManager } from "../src";
+import { VoicesManager } from "../dist/index.js";
 
 async function main() {
   const voicesManager = await VoicesManager.create();
