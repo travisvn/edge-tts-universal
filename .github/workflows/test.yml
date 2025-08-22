@@ -79,7 +79,7 @@ jobs:
 
       - name: Test Bun
         if: matrix.runtime == 'bun'
-        run: bun test
+        run: bun test tests/*.test.js
         continue-on-error: true
 
       - name: Check bundle sizes

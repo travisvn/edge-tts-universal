@@ -122,6 +122,8 @@
     "docs": "typedoc",
     "docs:serve": "typedoc --watch",
     "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test tests/*.test.js",
+    "test:watch": "npm run build && node --test --watch tests/*.test.js",
     "lint": "eslint src examples --ext .ts",
     "lint:fix": "eslint src examples --ext .ts --fix",
     "type-check": "tsc --noEmit",

@@ -155,4 +155,6 @@ docs/
 .notes/
 
 CLAUDE.md
+.claude/
 .cursorignore
+.cursor/
