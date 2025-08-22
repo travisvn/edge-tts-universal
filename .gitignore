@@ -158,3 +158,6 @@ CLAUDE.md
 .claude/
 .cursorignore
 .cursor/
+
+# Deno lockfile - let CI generate fresh
+deno.lock
