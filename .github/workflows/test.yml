@@ -41,6 +41,17 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
+      - name: Setup Node.js (for Deno build)
+        if: matrix.runtime == 'deno'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies (Deno build)
+        if: matrix.runtime == 'deno'
+        run: npm ci
+
       - name: Setup Bun
         if: matrix.runtime == 'bun'
         uses: oven-sh/setup-bun@v1
@@ -63,8 +74,8 @@ jobs:
         if: matrix.runtime == 'node' && matrix.node-version == '18'
         run: npm run lint
 
-      - name: Build (Node.js/Bun)
-        if: matrix.runtime == 'node' || matrix.runtime == 'bun'
+      - name: Build (Node.js/Bun/Deno)
+        if: matrix.runtime == 'node' || matrix.runtime == 'bun' || matrix.runtime == 'deno'
         run: npm run build
 
       - name: Test Node.js
