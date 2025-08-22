@@ -11,11 +11,11 @@ This is a **universal** TypeScript conversion of the Python [`edge-tts`](https:/
 
 ## 🌟 Universal Features
 
-- **🚀 Multiple Entry Points**: Choose between Node.js, browser, or isomorphic APIs
-- **🌐 Cross-Platform**: Works in Node.js, browsers, Deno, Bun, and edge runtimes
+- **🚀 Multiple Entry Points**: Node.js, browser, and Universal (cross-platform) APIs
+- **🌐 True Universal**: Works identically in Node.js, browsers, Deno, Bun, and edge runtimes
 - **📦 Tree-Shakable**: Import only what you need for optimal bundle size
-- **🔄 Isomorphic**: Same API works across all environments
-- **⚡ Zero Dependencies**: Browser builds have no external dependencies
+- **🔄 Universal & Isomorphic**: Same API works across all environments using Web standards
+- **⚡ Zero Dependencies**: Universal builds use only native Web APIs
 - **🛡️ Type Safe**: Full TypeScript support with comprehensive type definitions
 
 This package provides high fidelity to the original Python implementation, replicating the specific headers and WebSocket communication necessary to interact with Microsoft's service.
@@ -30,28 +30,77 @@ yarn add edge-tts-universal
 
 ## Universal Usage
 
-This package provides three usage patterns for maximum compatibility:
+This package provides multiple entry points for different use cases:
 
-### 📦 Default Import (Node.js + Isomorphic APIs)
+### 🌍 Universal API (Recommended - Works Everywhere)
+
+```typescript
+import {
+  UniversalEdgeTTS,
+  UniversalCommunicate,
+  UniversalVoicesManager,
+  listVoicesUniversal
+} from 'edge-tts-universal';
+
+// Works identically in Node.js, Deno, Bun, and browsers
+const tts = new UniversalEdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural');
+const result = await tts.synthesize();
+```
+
+### 📦 Node.js Optimized (Full Features)
 
 ```typescript
 import {
   EdgeTTS,
   Communicate,
-  IsomorphicCommunicate,
+  VoicesManager
 } from 'edge-tts-universal';
+
+// Node.js with proxy support, full headers, etc.
+const tts = new EdgeTTS('Hello, world!');
 ```
 
-### 🌐 Browser-Only Import (No Node.js dependencies)
+### 🌐 Browser-Only (Minimal Bundle)
 
 ```typescript
 import { EdgeTTS, Communicate } from 'edge-tts-universal/browser';
 ```
 
-### 🚀 Isomorphic-Only Import (Universal compatibility)
+### 🔄 Legacy Isomorphic (Still Supported)
 
 ```typescript
-import { EdgeTTS, Communicate } from 'edge-tts-universal/isomorphic';
+import {
+  IsomorphicEdgeTTS,
+  IsomorphicCommunicate
+} from 'edge-tts-universal';
+```
+
+## Runtime Compatibility
+
+| Runtime | Universal API | Node.js API | Browser API | Status |
+|---------|---------------|-------------|-------------|---------|
+| Node.js 16+ | ✅ Full | ✅ Full | ❌ N/A | Perfect |
+| Deno | ✅ Full | ❌ N/A | ❌ N/A | Perfect |
+| Bun | ✅ Full | ✅ Full | ❌ N/A | Perfect |
+| Chrome/Firefox | ✅ Full | ❌ N/A | ✅ Full | Perfect |
+| Edge/Safari | ✅ Full | ❌ N/A | ✅ Full | Perfect |
+
+### Key Improvements
+
+- **Universal API**: Uses Web standards (WebSocket, Web Crypto, fetch) for maximum compatibility
+- **Smart Headers**: Automatically uses optimal WebSocket headers where supported
+- **Zero Dependencies**: Universal builds bundle everything for true portability
+- **Backward Compatible**: All existing "Isomorphic" APIs still work
+
+## Quick Start
+
+```typescript
+import { UniversalEdgeTTS } from 'edge-tts-universal';
+
+const tts = new UniversalEdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural');
+const result = await tts.synthesize();
+
+// Works in Node.js, Deno, Bun, and browsers!
 ```
 
 ### 👷 Web Worker Import (For background processing)
@@ -336,10 +385,18 @@ The main exports of the package are:
 - **`listVoices`** - A function to get all available voices
 - **`SubMaker`** - A utility to generate SRT subtitles from `WordBoundary` events
 
-**Isomorphic (Universal) API:**
+**Universal API (Preferred):**
+
+- **`UniversalEdgeTTS`** - Cross-platform simple TTS using Web standards
+- **`UniversalCommunicate`** - Universal streaming TTS for all JavaScript runtimes  
+- **`UniversalVoicesManager`** - Cross-platform voice management
+- **`listVoicesUniversal`** - Universal voice listing with Web APIs
+- **`UniversalDRM`** - Cross-platform security using Web Crypto API
+
+**Isomorphic API (Legacy, Still Supported):**
 
 - **`IsomorphicCommunicate`** - Universal TTS class that works in Node.js and browsers
-- **`IsomorphicVoicesManager`** - Universal voice management with environment detection
+- **`IsomorphicVoicesManager`** - Universal voice management with environment detection  
 - **`listVoicesIsomorphic`** - Universal voice listing using cross-fetch
 - **`IsomorphicDRM`** - Cross-platform security token generation
 
@@ -348,6 +405,8 @@ The main exports of the package are:
 - **Exception classes** - `NoAudioReceived`, `WebSocketError`, etc.
 - **TypeScript types** - Complete type definitions for voices, options, and stream chunks
 
-All three APIs use the same robust infrastructure including **DRM security handling**, error recovery, proxy support, and all Microsoft Edge authentication features. The isomorphic API provides universal compatibility through environment detection and isomorphic packages.
+All APIs use the same robust infrastructure including **DRM security handling**, error recovery, and Microsoft Edge authentication features. 
+
+**Universal APIs** (preferred) use native Web standards for maximum compatibility, while **Isomorphic APIs** (legacy) provide backward compatibility. **Node.js APIs** offer full features including proxy support and custom headers.
 
 For detailed documentation, examples, and advanced usage patterns, see the [comprehensive API guide](./API.md).
