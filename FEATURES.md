@@ -19,7 +19,7 @@
 | ------------------------------- | ----- | ----------- | -------------------------------- |
 | `edge-tts-universal`            | ~46KB | Node.js     | Full API + Node.js optimizations |
 | `edge-tts-universal/browser`    | ~30KB | Browser     | Browser-only, zero Node.js deps  |
-| `edge-tts-universal/isomorphic` | ~36KB | Universal   | Works everywhere                 |
+| `edge-tts-universal/isomorphic` | ~36KB | Universal   | Cross-platform compatibility     |
 | `edge-tts-universal/webworker`  | ~36KB | Web Workers | Background processing            |
 
 ## 🚀 API Styles
@@ -66,13 +66,13 @@ for await (const chunk of communicate.stream()) {
 - Memory-efficient synthesis
 - Live applications
 
-### 3. Isomorphic API (Universal)
+### 3. Universal API (Cross-Platform)
 
 ```typescript
-import { IsomorphicCommunicate } from 'edge-tts-universal';
+import { UniversalCommunicate } from 'edge-tts-universal';
 
-// Works identically in Node.js and browsers
-const communicate = new IsomorphicCommunicate('Hello world');
+// Works identically in Node.js, browsers, Deno, Bun
+const communicate = new UniversalCommunicate('Hello world');
 ```
 
 **Best for:**

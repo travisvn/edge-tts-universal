@@ -34,22 +34,16 @@ yarn add edge-tts-universal
 ## Quick Start
 
 ```typescript
-import { Communicate } from 'edge-tts-universal';
-import fs from 'fs/promises';
+import { UniversalEdgeTTS } from 'edge-tts-universal';
 
-// Basic text-to-speech
-const communicate = new Communicate('Hello, world!', {
-  voice: 'en-US-EmmaMultilingualNeural',
-});
+// Simple universal TTS (works in Node.js, browsers, Deno, Bun)
+const tts = new UniversalEdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural');
+const result = await tts.synthesize();
 
-const buffers: Buffer[] = [];
-for await (const chunk of communicate.stream()) {
-  if (chunk.type === 'audio' && chunk.data) {
-    buffers.push(chunk.data);
-  }
-}
-
-await fs.writeFile('output.mp3', Buffer.concat(buffers));
+// Save audio file (Node.js example)
+const fs = await import('fs/promises');
+const audioBuffer = Buffer.from(await result.audio.arrayBuffer());
+await fs.writeFile('output.mp3', audioBuffer);
 ```
 
 ## API Styles
@@ -63,10 +57,10 @@ This package provides three API styles to suit different use cases:
 The Simple API provides a straightforward, promise-based interface similar to other TTS libraries:
 
 ```typescript
-import { EdgeTTS, createVTT, createSRT } from 'edge-tts-universal';
+import { UniversalEdgeTTS, createVTT, createSRT } from 'edge-tts-universal';
 
-// Simple one-shot synthesis
-const tts = new EdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural', {
+// Universal one-shot synthesis (works everywhere)
+const tts = new UniversalEdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural', {
   rate: '+10%',
   volume: '+0%',
   pitch: '+0Hz',
@@ -88,9 +82,9 @@ const srtSubtitles = createSRT(result.subtitle);
 The Advanced API provides streaming capabilities with real-time chunk processing:
 
 ```typescript
-import { Communicate, SubMaker } from 'edge-tts-universal';
+import { UniversalCommunicate, SubMaker } from 'edge-tts-universal';
 
-const communicate = new Communicate('Hello, world!', {
+const communicate = new UniversalCommunicate('Hello, world!', {
   voice: 'en-US-EmmaMultilingualNeural',
   rate: '+10%',
 });
