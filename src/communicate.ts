@@ -1,5 +1,4 @@
 import {
-  calcMaxMesgSize,
   connectId,
   dateToString,
   escape,

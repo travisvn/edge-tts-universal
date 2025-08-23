@@ -1,10 +1,7 @@
 import {
-  calcMaxMesgSize,
   connectId,
   dateToString,
   escape,
-  getHeadersAndDataFromBinary,
-  getHeadersAndDataFromText,
   mkssml,
   removeIncompatibleCharacters,
   splitTextByByteLength,
@@ -18,7 +15,6 @@ import {
   WebSocketError
 } from "./exceptions";
 import { TTSConfig } from './tts_config';
-import { CommunicateState, TTSChunk } from './types';
 import { DEFAULT_VOICE, WSS_URL, SEC_MS_GEC_VERSION, WSS_HEADERS } from './constants';
 import { IsomorphicDRM } from './isomorphic-drm';
 
@@ -222,10 +218,10 @@ export class IsomorphicCommunicate {
 
   private async createWebSocket(url: string): Promise<WebSocket> {
     // Handle WebSocket creation across different environments
-    const isNode = typeof globalThis !== 'undefined' 
+    const isNode = typeof globalThis !== 'undefined'
       ? globalThis.process?.versions?.node !== undefined
       : typeof process !== 'undefined' && process.versions?.node !== undefined;
-    
+
     if (isNode) {
       // Node.js: Try to dynamically import ws library for better compatibility
       try {

@@ -6,7 +6,6 @@ import {
   browserDateToString,
   browserMkssml,
   browserRemoveIncompatibleCharacters,
-  browserCalcMaxMesgSize
 } from './browser-utils';
 import {
   NoAudioReceived,
@@ -15,8 +14,7 @@ import {
   WebSocketError
 } from "./exceptions";
 import { TTSConfig } from './tts_config';
-import { CommunicateState, TTSChunk } from './types';
-import { DEFAULT_VOICE, WSS_URL, WSS_HEADERS, SEC_MS_GEC_VERSION } from './constants';
+import { DEFAULT_VOICE, WSS_URL, SEC_MS_GEC_VERSION } from './constants';
 import { BrowserDRM } from './browser-drm';
 
 // Browser-specific types (avoiding Node.js Buffer dependency)

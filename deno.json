@@ -16,7 +16,6 @@
     "./webworker": "./src/webworker-entry.ts"
   },
   "imports": {
-    "buffer": "node:buffer",
     "crypto": "node:crypto",
     "uuid": "npm:uuid@^11.1.0",
     "axios": "npm:axios@^1.4.0",

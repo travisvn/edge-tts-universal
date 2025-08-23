@@ -165,7 +165,6 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "buffer": "^6.0.3",
     "cross-fetch": "^4.1.0",
     "https-proxy-agent": "^7.0.6",
     "isomorphic-webcrypto": "^2.3.8",
