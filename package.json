@@ -13,7 +13,7 @@
     "./dist/index.cjs": "./dist/browser.cjs"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": "~=22",
     "bun": ">=1.0.0"
   },
   "exports": {
@@ -175,7 +175,7 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^11.2.0",
-    "@types/node": "^20.4.5",
+    "@types/node": "^22.18.3",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.18.1",
     "@types/xml-escape": "^1.1.3",
