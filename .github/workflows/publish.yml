@@ -41,7 +41,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Deno
@@ -96,7 +96,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Update package.json version
@@ -131,7 +131,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
@@ -198,7 +198,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@${{ github.repository_owner }}'
           cache: 'npm'
