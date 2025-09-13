@@ -148,7 +148,12 @@ export class EdgeTTSBrowser {
         };
 
         this.ws.onclose = () => {
-          const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" });
+          // TS 5.5+ requires BlobPart views to be ArrayBuffer-backed.
+          // Our chunks are Uint8Array; cast them for type compatibility.
+          const audioBlob = new Blob(
+            audioChunks as unknown as ArrayBufferView<ArrayBuffer>[],
+            { type: "audio/mpeg" }
+          );
           resolve({ audio: audioBlob, subtitle: wordBoundaries });
         };
 

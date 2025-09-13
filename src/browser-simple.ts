@@ -131,7 +131,10 @@ export class BrowserEdgeTTS {
 
     // Convert Uint8Array chunks to Blob
     const audioBuffer = concatUint8Arrays(audioChunks);
-    const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" });
+    // TS 5.5+ tightens BlobPart to ArrayBuffer-backed views; cast accordingly.
+    const audioBlob = new Blob([
+      audioBuffer as unknown as ArrayBufferView<ArrayBuffer>
+    ], { type: "audio/mpeg" });
 
     return {
       audio: audioBlob,
