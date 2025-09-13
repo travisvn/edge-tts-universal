@@ -1,0 +1,4 @@
+[test]
+# Exclude Deno-only tests when running `bun test` locally.
+# CI runs Deno tests with `deno test` (see .github/workflows/test.yml).
+coveragePathIgnorePatterns = ["tests/deno/**"]

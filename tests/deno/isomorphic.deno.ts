@@ -30,3 +30,4 @@ Deno.test("Isomorphic API - Communicate accepts configuration options", () => {
   
   assert(communicate instanceof Communicate, 'Should create Communicate instance with options');
 });
+
