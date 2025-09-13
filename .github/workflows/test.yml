@@ -19,6 +19,8 @@ jobs:
             node-version: '18'
           - runtime: node
             node-version: '20'
+          - runtime: node
+            node-version: '22'
           - runtime: deno
             deno-version: 'v1.x'
           - runtime: bun
@@ -45,7 +47,7 @@ jobs:
         if: matrix.runtime == 'deno'
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies (Deno build)
@@ -71,13 +73,13 @@ jobs:
         run: npm run type-check
 
       - name: Lint (Node.js)
-        if: matrix.runtime == 'node' && matrix.node-version == '18'
+        if: matrix.runtime == 'node' && matrix.node-version == '22'
         run: npm run lint
 
       - name: Build (Node.js/Bun)
         if: matrix.runtime == 'node' || matrix.runtime == 'bun'
         run: npm run build
-      
+
       - name: Build (Deno)
         if: matrix.runtime == 'deno'
         run: npm run build
@@ -98,7 +100,7 @@ jobs:
         continue-on-error: true
 
       - name: Check bundle sizes
-        if: matrix.runtime == 'node' && matrix.node-version == '18'
+        if: matrix.runtime == 'node' && matrix.node-version == '22'
         run: ls -la dist/
         continue-on-error: true
 
@@ -116,7 +118,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -145,7 +147,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Deno
