@@ -13,7 +13,7 @@
     "./dist/index.cjs": "./dist/browser.cjs"
   },
   "engines": {
-    "node": ">=16.0.0",
+    "node": ">=18.0.0",
     "bun": ">=1.0.0"
   },
   "exports": {
