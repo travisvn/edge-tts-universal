@@ -1,6 +1,6 @@
 {
   "name": "edge-tts-universal",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
   "type": "module",
   "main": "./dist/index.cjs",

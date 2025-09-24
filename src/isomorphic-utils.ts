@@ -57,7 +57,7 @@ export function unescape(text: string): string {
 export function getHeadersAndDataFromText(message: Uint8Array): [{ [key: string]: string }, Uint8Array] {
   const messageString = new TextDecoder().decode(message);
   const headerEndIndex = messageString.indexOf('\r\n\r\n');
-  
+
   const headers: { [key: string]: string } = {};
   if (headerEndIndex !== -1) {
     const headerString = messageString.substring(0, headerEndIndex);
@@ -113,9 +113,13 @@ export function dateToString(date?: Date): string {
 
 /**
  * Removes characters that are incompatible with SSML.
+ * Preserves essential punctuation (.?;:!,) for natural speech pauses.
+ * XML special characters (&<>"') are handled by the escape() function.
  */
 export function removeIncompatibleCharacters(str: string): string {
-  const chars_to_remove = "*.?;:!&/()[]{}$%^@#+=|\\~`><\"";
+  // Keep essential punctuation for natural speech: .?;:!,
+  // Remove characters that could break SSML structure or cause parsing issues
+  const chars_to_remove = "*/()[]{}$%^@#+=|\\~`><\"&";
   let clean_str = str;
   for (const char of chars_to_remove) {
     clean_str = clean_str.replace(new RegExp('\\' + char, 'g'), '');
