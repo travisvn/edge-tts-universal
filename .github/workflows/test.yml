@@ -14,8 +14,6 @@ jobs:
       matrix:
         include:
           - runtime: node
-            node-version: '16'
-          - runtime: node
             node-version: '18'
           - runtime: node
             node-version: '20'
@@ -76,9 +74,13 @@ jobs:
         if: matrix.runtime == 'node' && matrix.node-version == '22'
         run: npm run lint
 
-      - name: Build (Node.js/Bun)
-        if: matrix.runtime == 'node' || matrix.runtime == 'bun'
+      - name: Build (Node.js)
+        if: matrix.runtime == 'node'
         run: npm run build
+
+      - name: Build (Bun)
+        if: matrix.runtime == 'bun'
+        run: bun run build
 
       - name: Build (Deno)
         if: matrix.runtime == 'deno'
