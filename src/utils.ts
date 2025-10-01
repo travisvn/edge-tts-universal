@@ -396,10 +396,8 @@ export function linearizeTableToSSML(markdownTable: string): string {
           output += `${header}: ${cleanValue}. `;
         }
         
-        // Add natural pause between cells (except for the last one)
-        if (headerIndex < headers.length - 1) {
-          output += '... ';
-        }
+        // Add natural pause after every column value
+        output += '... ';
       });
       
       // Add longer pause between rows (except for the last one)
