@@ -103,6 +103,13 @@ const communicate = new UniversalCommunicate('Hello world');
 - **Pitch** - Voice pitch (`+5Hz`, `-10Hz`, etc.)
 - **SSML Support** - Advanced speech markup
 
+### Table Processing
+
+- **Table Linearization** - Convert markdown tables to natural speech format
+- **Table Skipping** - Skip tables entirely for cleaner audio output
+- **Smart Table Detection** - Automatically detects various table formats
+- **Accessibility Focus** - Optimized for screen readers and TTS engines
+
 ## 📝 Subtitle Features
 
 ### Word-Level Timing
@@ -144,6 +151,7 @@ const communicate = new UniversalCommunicate('Hello world');
 - **ESLint Config** - Environment-specific linting
 - **VS Code Support** - Optimized development settings
 - **Documentation** - Comprehensive API docs
+- **Table Processing** - Built-in markdown table handling for TTS
 
 ### Network Features
 
