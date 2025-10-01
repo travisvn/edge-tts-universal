@@ -43,6 +43,10 @@ export interface CommunicateOptions {
   proxy?: string;
   /** WebSocket connection timeout in milliseconds */
   connectionTimeout?: number;
+  /** Enable table linearization for better TTS accessibility */
+  linearizeTables?: boolean;
+  /** Skip table content entirely for TTS clarity */
+  skipTables?: boolean;
 }
 
 /**
@@ -93,7 +97,10 @@ export class Communicate {
     }
 
     this.texts = splitTextByByteLength(
-      escape(removeIncompatibleCharacters(text)),
+      escape(removeIncompatibleCharacters(text, { 
+        linearizeTables: options.linearizeTables,
+        skipTables: options.skipTables 
+      })),
       // calcMaxMesgSize(this.ttsConfig),
       4096,
     );

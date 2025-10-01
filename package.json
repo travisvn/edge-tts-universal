@@ -166,6 +166,7 @@
   "dependencies": {
     "axios": "^1.12.1",
     "cross-fetch": "^4.1.0",
+    "emoji-regex": "^10.3.1",
     "https-proxy-agent": "^7.0.6",
     "isomorphic-webcrypto": "^2.3.8",
     "isomorphic-ws": "^5.0.0",
