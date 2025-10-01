@@ -55,6 +55,9 @@ export {
 // Utility for creating subtitles (works everywhere)
 export { SubMaker } from './submaker';
 
+// Utility functions
+export { removeIncompatibleCharacters } from './isomorphic-utils';
+
 // Common types and exceptions
 export * from './exceptions';
 export * from './types';

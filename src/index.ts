@@ -96,6 +96,9 @@ export {
   createSRT as createSRTBrowser
 } from './browser';
 
+// Utility functions
+export { removeIncompatibleCharacters } from './utils';
+
 // Common types and exceptions
 export * from './exceptions';
 export * from './types'; 
