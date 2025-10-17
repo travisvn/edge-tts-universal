@@ -124,6 +124,9 @@ jobs:
       needs.test.result == 'success' && 
       (needs.sync-versions.result == 'success' || needs.sync-versions.result == 'skipped') &&
       (github.event.inputs.npm == 'true' || github.event.inputs.npm == '' || github.event_name == 'release')
+    permissions:
+      contents: read
+      id-token: write # The OIDC JWT token will be requested through this audience value.
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
