@@ -4,7 +4,7 @@
  */
 
 import { TTSConfig } from './tts_config';
-import { ValueError } from "./exceptions";
+import emojiRegex from 'emoji-regex';
 
 /**
  * Generates a UUID v4 string without hyphens using Web Crypto API.
@@ -112,15 +112,22 @@ export function dateToString(date?: Date): string {
 }
 
 /**
- * Removes characters that are incompatible with SSML.
+ * Removes characters and emojis that are incompatible with SSML.
  * Preserves essential punctuation (.?;:!,) for natural speech pauses.
  * XML special characters (&<>"') are handled by the escape() function.
  */
 export function removeIncompatibleCharacters(str: string): string {
+  // WHY: Emojis break SSML parsing and cause TTS synthesis failures in browser environments,
+  //      while special characters can corrupt SSML structure leading to silent failures.
+  // HOW: Remove emojis using emoji-regex, then strip SSML-breaking characters while 
+  //      preserving natural speech punctuation that enhances audio quality.
+  // WHAT: Sanitizes text for SSML compatibility across all runtime environments.
+  // LINKS: tests/emoji-handling.test.js; PR #emoji-handling; SSML specification compliance
+  let clean_str = str.replace(emojiRegex(), '');
+  
   // Keep essential punctuation for natural speech: .?;:!,
   // Remove characters that could break SSML structure or cause parsing issues
   const chars_to_remove = "*/()[]{}$%^@#+=|\\~`><\"&";
-  let clean_str = str;
   for (const char of chars_to_remove) {
     clean_str = clean_str.replace(new RegExp('\\' + char, 'g'), '');
   }
