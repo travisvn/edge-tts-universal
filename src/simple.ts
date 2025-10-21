@@ -19,6 +19,16 @@ export interface ProsodyOptions {
    * Examples: "+20Hz", "-10Hz"
    */
   pitch?: string;
+  /**
+   * Enable table linearization for better TTS accessibility.
+   * Converts markdown tables to natural speech format.
+   */
+  linearizeTables?: boolean;
+  /**
+   * Skip table content entirely for TTS clarity.
+   * Removes all table content from the text.
+   */
+  skipTables?: boolean;
 }
 
 /**
@@ -64,6 +74,8 @@ export class EdgeTTS {
   public rate: string;
   public volume: string;
   public pitch: string;
+  public linearizeTables: boolean;
+  public skipTables: boolean;
 
   /**
    * @param text The text to be synthesized.
@@ -80,6 +92,8 @@ export class EdgeTTS {
     this.rate = options.rate || "+0%";
     this.volume = options.volume || "+0%";
     this.pitch = options.pitch || "+0Hz";
+    this.linearizeTables = options.linearizeTables || false;
+    this.skipTables = options.skipTables || false;
   }
 
   /**
@@ -92,6 +106,8 @@ export class EdgeTTS {
       rate: this.rate,
       volume: this.volume,
       pitch: this.pitch,
+      linearizeTables: this.linearizeTables,
+      skipTables: this.skipTables,
     });
 
     const audioChunks: Buffer[] = [];

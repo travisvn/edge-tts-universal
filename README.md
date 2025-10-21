@@ -17,6 +17,7 @@ This is a **universal** TypeScript conversion of the Python [`edge-tts`](https:/
 - **🔄 Universal & Isomorphic**: Same API works across all environments using Web standards
 - **⚡ Zero Dependencies**: Universal builds use only native Web APIs
 - **🛡️ Type Safe**: Full TypeScript support with comprehensive type definitions
+- **📊 Table Processing**: Built-in markdown table linearization and skipping for TTS optimization
 
 This package provides high fidelity to the original Python implementation, replicating the specific headers and WebSocket communication necessary to interact with Microsoft's service.
 
@@ -148,8 +149,11 @@ _\* Minified + Gzipped estimates_
 import { EdgeTTS } from 'edge-tts-universal';
 import fs from 'fs/promises';
 
-// Simple one-shot synthesis
-const tts = new EdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural');
+// Simple one-shot synthesis with table processing
+const tts = new EdgeTTS('Hello, world!', 'en-US-EmmaMultilingualNeural', {
+  linearizeTables: true,  // Convert tables to natural speech
+  skipTables: false       // Or skip tables entirely
+});
 const result = await tts.synthesize();
 
 // Save audio file
