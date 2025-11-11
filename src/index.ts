@@ -37,17 +37,25 @@
  */
 
 // Node.js-specific API (uses axios, Node.js crypto, etc.)
-export { Communicate, CommunicateOptions } from './communicate';
+export { Communicate, type CommunicateOptions } from './communicate';
 export { SubMaker } from './submaker';
 export { VoicesManager, listVoices } from './voices';
 
 // Simple API (works in both Node.js and browsers when using appropriate exports)
-export { EdgeTTS, ProsodyOptions, WordBoundary, SynthesisResult, createVTT, createSRT, UniversalEdgeTTS } from './simple';
+export {
+  EdgeTTS,
+  type ProsodyOptions,
+  type WordBoundary,
+  type SynthesisResult,
+  createVTT,
+  createSRT,
+  UniversalEdgeTTS
+} from './simple';
 
 // Universal/Isomorphic API (works in both Node.js and browsers)
 export {
   IsomorphicCommunicate,
-  IsomorphicCommunicateOptions
+  type IsomorphicCommunicateOptions
 } from './isomorphic-communicate';
 export {
   IsomorphicVoicesManager,
@@ -59,9 +67,9 @@ export { IsomorphicDRM } from './isomorphic-drm';
 // Simple isomorphic API
 export {
   IsomorphicEdgeTTS,
-  ProsodyOptions as IsomorphicProsodyOptions,
-  WordBoundary as IsomorphicWordBoundary,
-  SynthesisResult as IsomorphicSynthesisResult,
+  type ProsodyOptions as IsomorphicProsodyOptions,
+  type WordBoundary as IsomorphicWordBoundary,
+  type SynthesisResult as IsomorphicSynthesisResult,
   createVTT as createVTTIsomorphic,
   createSRT as createSRTIsomorphic
 } from './isomorphic-simple';
@@ -69,7 +77,7 @@ export {
 // Universal aliases (preferred naming)
 export {
   IsomorphicCommunicate as UniversalCommunicate,
-  IsomorphicCommunicateOptions as UniversalCommunicateOptions
+  type IsomorphicCommunicateOptions as UniversalCommunicateOptions
 } from './isomorphic-communicate';
 export {
   IsomorphicVoicesManager as UniversalVoicesManager,
@@ -79,9 +87,9 @@ export {
 export { IsomorphicDRM as UniversalDRM } from './isomorphic-drm';
 export {
   IsomorphicEdgeTTS as UniversalEdgeTTS_Isomorphic,
-  ProsodyOptions as UniversalProsodyOptions_Isomorphic,
-  WordBoundary as UniversalWordBoundary_Isomorphic,
-  SynthesisResult as UniversalSynthesisResult_Isomorphic,
+  type ProsodyOptions as UniversalProsodyOptions_Isomorphic,
+  type WordBoundary as UniversalWordBoundary_Isomorphic,
+  type SynthesisResult as UniversalSynthesisResult_Isomorphic,
   createVTT as createVTTUniversal_Isomorphic,
   createSRT as createSRTUniversal_Isomorphic
 } from './isomorphic-simple';
@@ -89,9 +97,9 @@ export {
 // Browser-specific API (uses native browser APIs only)
 export {
   EdgeTTSBrowser,
-  ProsodyOptions as BrowserProsodyOptions,
-  WordBoundary as BrowserWordBoundary,
-  SynthesisResult as BrowserSynthesisResult,
+  type ProsodyOptions as BrowserProsodyOptions,
+  type WordBoundary as BrowserWordBoundary,
+  type SynthesisResult as BrowserSynthesisResult,
   createVTT as createVTTBrowser,
   createSRT as createSRTBrowser
 } from './browser';

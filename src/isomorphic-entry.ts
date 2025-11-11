@@ -31,7 +31,7 @@
 
 export {
   IsomorphicCommunicate as Communicate,
-  IsomorphicCommunicateOptions as CommunicateOptions
+  type IsomorphicCommunicateOptions as CommunicateOptions
 } from './isomorphic-communicate';
 
 export {
@@ -45,9 +45,9 @@ export { IsomorphicDRM as DRM } from './isomorphic-drm';
 // Simple API using isomorphic backend (all from isomorphic-simple to avoid Node.js deps)
 export {
   IsomorphicEdgeTTS as EdgeTTS,
-  ProsodyOptions,
-  WordBoundary,
-  SynthesisResult,
+  type ProsodyOptions,
+  type WordBoundary,
+  type SynthesisResult,
   createVTT,
   createSRT
 } from './isomorphic-simple';
@@ -62,7 +62,7 @@ export * from './types';
 // Universal aliases (preferred naming convention)
 export {
   IsomorphicCommunicate as UniversalCommunicate,
-  IsomorphicCommunicateOptions as UniversalCommunicateOptions
+  type IsomorphicCommunicateOptions as UniversalCommunicateOptions
 } from './isomorphic-communicate';
 
 export {
