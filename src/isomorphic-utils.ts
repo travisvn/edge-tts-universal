@@ -117,14 +117,8 @@ export function dateToString(date?: Date): string {
  * XML special characters (&<>"') are handled by the escape() function.
  */
 export function removeIncompatibleCharacters(str: string): string {
-  // Keep essential punctuation for natural speech: .?;:!,
-  // Remove characters that could break SSML structure or cause parsing issues
-  const chars_to_remove = "*/()[]{}$%^@#+=|\\~`><\"&";
-  let clean_str = str;
-  for (const char of chars_to_remove) {
-    clean_str = clean_str.replace(new RegExp('\\' + char, 'g'), '');
-  }
-  return clean_str;
+  // Remove control characters except for \t, \n, \r
+  return str.replaceAll(/[\p{C}--[\t\r\n]]/gv, ' ');
 }
 
 /**
