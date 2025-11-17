@@ -115,6 +115,7 @@ export function getWebSocket(): any {
 
 /**
  * Get runtime-specific crypto implementation
+ * Note: Node.js 16+ (and our minimum version of 18.17+) has native globalThis.crypto support
  */
 export function getCrypto(): Crypto {
   const runtime = detectRuntime();
@@ -124,16 +125,11 @@ export function getCrypto(): Crypto {
   }
 
   if (runtime.isNode || runtime.isBun) {
-    try {
-      // Node.js 16+ has built-in crypto.webcrypto
-      if (typeof globalThis.crypto !== 'undefined') {
-        return globalThis.crypto;
-      }
-      // Fallback for older Node versions
-      return require('isomorphic-webcrypto');
-    } catch {
-      throw new Error('No crypto implementation available. Please install isomorphic-webcrypto.');
+    // Node.js 18.17+ and Bun have built-in crypto
+    if (typeof globalThis.crypto !== 'undefined') {
+      return globalThis.crypto;
     }
+    throw new Error('No crypto implementation available. Please upgrade to Node.js 18.17+.');
   }
 
   throw new Error('Unsupported runtime environment');
