@@ -40,9 +40,9 @@ export { EdgeTTSBrowser } from './browser';
 // Export the new simplified browser-specific API as the main EdgeTTS
 export {
   BrowserEdgeTTS as EdgeTTS,
-  ProsodyOptions,
-  WordBoundary,
-  SynthesisResult,
+  type ProsodyOptions,
+  type WordBoundary,
+  type SynthesisResult,
   createVTT,
   createSRT
 } from './browser-simple';
@@ -50,7 +50,7 @@ export {
 // Export browser-specific implementations to avoid Node.js dependencies
 export {
   BrowserCommunicate as Communicate,
-  BrowserCommunicateOptions as CommunicateOptions
+  type BrowserCommunicateOptions as CommunicateOptions
 } from './browser-communicate';
 
 export {
