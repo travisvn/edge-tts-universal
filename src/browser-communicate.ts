@@ -132,6 +132,7 @@ function browserSplitTextByByteLength(text: string, byteLength: number): Generat
       }
 
       buffer = buffer.slice(splitAt);
+      buffer = new TextEncoder().encode(new TextDecoder().decode(buffer).trim());
     }
 
     const remainingText = new TextDecoder().decode(buffer).trim();
