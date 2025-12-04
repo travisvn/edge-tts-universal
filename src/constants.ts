@@ -14,7 +14,7 @@ export const VOICE_LIST_URL = `https://${BASE_URL}/voices/list?trustedclienttoke
 export const DEFAULT_VOICE = "en-US-EmmaMultilingualNeural";
 
 /** Version string for Chromium browser emulation */
-export const CHROMIUM_FULL_VERSION = "130.0.2849.68";
+export const CHROMIUM_FULL_VERSION = "142.0.3595.94";
 
 /** Major version number extracted from the full Chromium version */
 export const CHROMIUM_MAJOR_VERSION = CHROMIUM_FULL_VERSION.split(".")[0];
@@ -35,13 +35,15 @@ export const WSS_HEADERS = {
   "Pragma": "no-cache",
   "Cache-Control": "no-cache",
   "Origin": "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold",
+  "Sec-WebSocket-Protocol": "synthesize",
+  "Sec-WebSocket-Version": "13",
 };
 
 /** HTTP headers specific to voice list API requests */
 export const VOICE_HEADERS = {
   ...BASE_HEADERS,
   "Authority": "speech.platform.bing.com",
-  "Sec-CH-UA": `" Not;A Brand";v="99", "Microsoft Edge";v="${CHROMIUM_MAJOR_VERSION}", "Chromium";v="${CHROMIUM_MAJOR_VERSION}"`,
+  "Sec-CH-UA": `"Chromium";v="${CHROMIUM_MAJOR_VERSION}", "Microsoft Edge";v="${CHROMIUM_MAJOR_VERSION}", "Not_A Brand";v="99"`,
   "Sec-CH-UA-Mobile": "?0",
   "Accept": "*/*",
   "Sec-Fetch-Site": "none",
