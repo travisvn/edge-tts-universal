@@ -35,6 +35,8 @@ export const WSS_HEADERS = {
   "Pragma": "no-cache",
   "Cache-Control": "no-cache",
   "Origin": "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold",
+  "Sec-WebSocket-Protocol": "synthesize",
+  "Sec-WebSocket-Version": "13",
 };
 
 /** HTTP headers specific to voice list API requests */
