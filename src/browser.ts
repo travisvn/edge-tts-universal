@@ -3,6 +3,8 @@
  * Uses native browser APIs instead of Node.js dependencies
  */
 
+import { WSS_URL, SEC_MS_GEC_VERSION, TRUSTED_CLIENT_TOKEN } from './constants';
+
 /**
  * Options for controlling the voice prosody (rate, pitch, volume).
  */
@@ -71,8 +73,6 @@ export class EdgeTTSBrowser {
   public pitch: string;
 
   private ws: WebSocket | null = null;
-  private readonly WSS_URL = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1";
-  private readonly TRUSTED_CLIENT_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 
   /**
    * @param text The text to be synthesized.
@@ -170,7 +170,7 @@ export class EdgeTTSBrowser {
   private connect(): Promise<void> {
     const connectionId = this.generateConnectionId();
     const secMsGec = this.generateSecMsGec();
-    const url = `${this.WSS_URL}?TrustedClientToken=${this.TRUSTED_CLIENT_TOKEN}&ConnectionId=${connectionId}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-130.0.2849.68`;
+    const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=${SEC_MS_GEC_VERSION}&ConnectionId=${connectionId}`;
 
     this.ws = new WebSocket(url);
 
@@ -275,7 +275,7 @@ export class EdgeTTSBrowser {
     ticks -= ticks % 300;
     ticks *= S_TO_NS / 100;
 
-    const strToHash = `${ticks.toFixed(0)}${this.TRUSTED_CLIENT_TOKEN}`;
+    const strToHash = `${ticks.toFixed(0)}${TRUSTED_CLIENT_TOKEN}`;
 
     // Use Web Crypto API for hashing
     const encoder = new TextEncoder();
