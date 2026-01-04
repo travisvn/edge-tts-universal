@@ -25,7 +25,7 @@ export const SEC_MS_GEC_VERSION = `1-${CHROMIUM_FULL_VERSION}`;
 /** Base HTTP headers for API requests, mimicking a real browser */
 export const BASE_HEADERS = {
   "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_MAJOR_VERSION}.0.0.0 Safari/537.36 Edg/${CHROMIUM_MAJOR_VERSION}.0.0.0`,
-  "Accept-Encoding": "gzip, deflate, br",
+  "Accept-Encoding": "gzip, deflate, br, zstd",
   "Accept-Language": "en-US,en;q=0.9",
 };
 
@@ -35,7 +35,6 @@ export const WSS_HEADERS = {
   "Pragma": "no-cache",
   "Cache-Control": "no-cache",
   "Origin": "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold",
-  "Sec-WebSocket-Protocol": "synthesize",
   "Sec-WebSocket-Version": "13",
 };
 
