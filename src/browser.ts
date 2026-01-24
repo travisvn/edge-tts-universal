@@ -170,7 +170,7 @@ export class EdgeTTSBrowser {
   private connect(): Promise<void> {
     const connectionId = this.generateConnectionId();
     const secMsGec = this.generateSecMsGec();
-    const url = `${this.WSS_URL}?TrustedClientToken=${this.TRUSTED_CLIENT_TOKEN}&ConnectionId=${connectionId}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-130.0.2849.68`;
+    const url = `${this.WSS_URL}?TrustedClientToken=${this.TRUSTED_CLIENT_TOKEN}&ConnectionId=${connectionId}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-143.0.3650.75`;
 
     this.ws = new WebSocket(url);
 

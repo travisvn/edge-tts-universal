@@ -14,7 +14,7 @@ export const VOICE_LIST_URL = `https://${BASE_URL}/voices/list?trustedclienttoke
 export const DEFAULT_VOICE = "en-US-EmmaMultilingualNeural";
 
 /** Version string for Chromium browser emulation */
-export const CHROMIUM_FULL_VERSION = "130.0.2849.68";
+export const CHROMIUM_FULL_VERSION = "143.0.3650.75";
 
 /** Major version number extracted from the full Chromium version */
 export const CHROMIUM_MAJOR_VERSION = CHROMIUM_FULL_VERSION.split(".")[0];
