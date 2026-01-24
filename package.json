@@ -138,7 +138,8 @@
     "analyze": "npx @next/bundle-analyzer",
     "publish:jsr": "deno publish",
     "publish:npm": "npm publish",
-    "publish:all": "npm run publish:npm && npm run publish:jsr"
+    "publish:all": "npm run publish:npm && npm run publish:jsr",
+    "prepare": "npm run build"
   },
   "keywords": [
     "text-to-speech",
