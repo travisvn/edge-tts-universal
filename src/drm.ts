@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { TRUSTED_CLIENT_TOKEN } from './constants';
 import { SkewAdjustmentError } from "./exceptions";
 import { AxiosError } from "axios";
@@ -78,5 +78,25 @@ export class DRM {
 
     const strToHash = `${ticks.toFixed(0)}${TRUSTED_CLIENT_TOKEN}`;
     return createHash('sha256').update(strToHash, 'ascii').digest('hex').toUpperCase();
+  }
+
+  /**
+   * Generates a random MUID (Machine Unique Identifier).
+   * @returns Uppercase 32-character hex string
+   */
+  static generateMuid(): string {
+    return randomBytes(16).toString('hex').toUpperCase();
+  }
+
+  /**
+   * Returns a copy of the given headers with a MUID cookie added.
+   * @param headers - The original headers
+   * @returns New headers object with Cookie header containing the MUID
+   */
+  static headersWithMuid(headers: Record<string, string>): Record<string, string> {
+    return {
+      ...headers,
+      Cookie: `muid=${DRM.generateMuid()};`,
+    };
   }
 } 

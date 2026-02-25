@@ -59,8 +59,8 @@ async function isomorphicExample() {
 
     if (isNode) {
       // Node.js - save to file
-      const fs = await import('fs/promises');
-      const path = await import('path');
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
 
       const outputFile = path.join(process.cwd(), 'isomorphic-output.mp3');
       // Concatenate Uint8Arrays

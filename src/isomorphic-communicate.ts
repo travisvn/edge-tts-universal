@@ -105,7 +105,7 @@ interface IsomorphicCommunicateState {
 
 // Isomorphic TTSChunk type using Uint8Array
 interface IsomorphicTTSChunk {
-  type: "audio" | "WordBoundary";
+  type: "audio" | "WordBoundary" | "SentenceBoundary";
   data?: Uint8Array;
   duration?: number;
   offset?: number;
@@ -198,7 +198,7 @@ export class IsomorphicCommunicate {
     const metadata = JSON.parse(IsomorphicBuffer.toString(data));
     for (const metaObj of metadata['Metadata']) {
       const metaType = metaObj['Type'];
-      if (metaType === 'WordBoundary') {
+      if (metaType === 'WordBoundary' || metaType === 'SentenceBoundary') {
         const currentOffset = metaObj['Data']['Offset'] + this.state.offsetCompensation;
         const currentDuration = metaObj['Data']['Duration'];
         return {
@@ -227,7 +227,7 @@ export class IsomorphicCommunicate {
       try {
         const { default: WS } = await import('ws');
         return new WS(url, {
-          headers: WSS_HEADERS,
+          headers: IsomorphicDRM.headersWithMuid(WSS_HEADERS),
         }) as any;
       } catch (error) {
         // Fall back to native Node.js WebSocket if ws not available
@@ -269,6 +269,8 @@ export class IsomorphicCommunicate {
           }
         } else if (path === 'turn.end') {
           this.state.offsetCompensation = this.state.lastDurationOffset;
+          // Add average padding typically added by the service to the end of the audio
+          this.state.offsetCompensation += 8_750_000;
           websocket.close();
         } else if (path !== 'response' && path !== 'turn.start') {
           messageQueue.push(new UnknownResponse(`Unknown path received: ${path}`));

@@ -14,7 +14,7 @@ export const VOICE_LIST_URL = `https://${BASE_URL}/voices/list?trustedclienttoke
 export const DEFAULT_VOICE = "en-US-EmmaMultilingualNeural";
 
 /** Version string for Chromium browser emulation */
-export const CHROMIUM_FULL_VERSION = "130.0.2849.68";
+export const CHROMIUM_FULL_VERSION = "143.0.3650.75";
 
 /** Major version number extracted from the full Chromium version */
 export const CHROMIUM_MAJOR_VERSION = CHROMIUM_FULL_VERSION.split(".")[0];
@@ -25,7 +25,7 @@ export const SEC_MS_GEC_VERSION = `1-${CHROMIUM_FULL_VERSION}`;
 /** Base HTTP headers for API requests, mimicking a real browser */
 export const BASE_HEADERS = {
   "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_MAJOR_VERSION}.0.0.0 Safari/537.36 Edg/${CHROMIUM_MAJOR_VERSION}.0.0.0`,
-  "Accept-Encoding": "gzip, deflate, br",
+  "Accept-Encoding": "gzip, deflate, br, zstd",
   "Accept-Language": "en-US,en;q=0.9",
 };
 
@@ -35,6 +35,7 @@ export const WSS_HEADERS = {
   "Pragma": "no-cache",
   "Cache-Control": "no-cache",
   "Origin": "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold",
+  "Sec-WebSocket-Version": "13",
 };
 
 /** HTTP headers specific to voice list API requests */

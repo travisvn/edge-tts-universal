@@ -19,7 +19,7 @@ import { BrowserDRM } from './browser-drm';
 
 // Browser-specific types (avoiding Node.js Buffer dependency)
 export type BrowserTTSChunk = {
-  type: "audio" | "WordBoundary";
+  type: "audio" | "WordBoundary" | "SentenceBoundary";
   data?: Uint8Array;
   duration?: number;
   offset?: number;
@@ -217,7 +217,7 @@ export class BrowserCommunicate {
     const metadata = JSON.parse(new TextDecoder().decode(data));
     for (const metaObj of metadata['Metadata']) {
       const metaType = metaObj['Type'];
-      if (metaType === 'WordBoundary') {
+      if (metaType === 'WordBoundary' || metaType === 'SentenceBoundary') {
         const currentOffset = metaObj['Data']['Offset'] + this.state.offsetCompensation;
         const currentDuration = metaObj['Data']['Duration'];
         return {
@@ -277,6 +277,8 @@ export class BrowserCommunicate {
           }
         } else if (path === 'turn.end') {
           this.state.offsetCompensation = this.state.lastDurationOffset;
+          // Add average padding typically added by the service to the end of the audio
+          this.state.offsetCompensation += 8_750_000;
           websocket.close();
         } else if (path !== 'response' && path !== 'turn.start') {
           messageQueue.push(new UnknownResponse(`Unknown path received: ${path}`));

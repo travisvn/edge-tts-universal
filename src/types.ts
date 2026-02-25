@@ -4,7 +4,7 @@
  */
 export type TTSChunk = {
   /** The type of chunk - either audio data or word boundary metadata */
-  type: "audio" | "WordBoundary";
+  type: "audio" | "WordBoundary" | "SentenceBoundary";
   /** Raw audio data buffer (present for audio chunks) */
   data?: Buffer;
   /** Duration of the word in 100-nanosecond units (present for WordBoundary chunks) */

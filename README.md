@@ -7,7 +7,13 @@
 [![Tree Shaking](https://img.shields.io/badge/tree%20shaking-✓-green)](#bundle-optimization)
 [![JSR Score](https://jsr.io/badges/@edge-tts/universal/score)](https://jsr.io/@edge-tts/universal)
 
-This is a **universal** TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from **Node.js, browsers, and any JavaScript environment**.
+This is a **universal** TypeScript conversion of the Python [`edge-tts`](https://github.com/rany2/edge-tts) library. It allows you to use Microsoft Edge's online text-to-speech service from **Node.js, Deno, Bun, and any server-side JavaScript environment**.
+
+> **Important: Browser Limitation (v1.4.0+)**
+>
+> Microsoft's TTS service now requires a custom WebSocket header (`Sec-WebSocket-Version`) that browsers do not allow setting via the WebSocket API. As a result, **direct browser usage is limited to the Microsoft Edge browser only**, which permits the connection to its own service. Other browsers (Chrome, Firefox, Safari) will fail to connect. There are no known workarounds at this time.
+>
+> **Server-side environments (Node.js, Deno, Bun) are unaffected** and continue to work perfectly, as they have full control over WebSocket headers.
 
 ## 🌟 Universal Features
 
@@ -19,6 +25,15 @@ This is a **universal** TypeScript conversion of the Python [`edge-tts`](https:/
 - **🛡️ Type Safe**: Full TypeScript support with comprehensive type definitions
 
 This package provides high fidelity to the original Python implementation, replicating the specific headers and WebSocket communication necessary to interact with Microsoft's service.
+
+## What's New in v1.4.0
+
+- **Updated service compatibility**: Aligned with the latest [rany2/edge-tts](https://github.com/rany2/edge-tts) Python package (v7.2.7+) for reliable connectivity
+- **Updated Chromium emulation**: Now emulates Chrome/Edge 143 (was 130)
+- **MUID cookie authentication**: All WebSocket connections now include a randomized MUID cookie, matching how the official Edge client authenticates
+- **Offset compensation padding**: Multi-chunk synthesis now adds timing padding between segments for accurate subtitle alignment
+- **SentenceBoundary support**: Streaming API now surfaces `SentenceBoundary` metadata events alongside `WordBoundary`
+- **Deduplicated browser internals**: `EdgeTTSBrowser` now uses shared constants and `BrowserDRM` instead of hardcoded values
 
 ## Installation
 
@@ -79,11 +94,13 @@ import {
 
 | Runtime | Universal API | Node.js API | Browser API | Status |
 |---------|---------------|-------------|-------------|---------|
-| Node.js 16+ | ✅ Full | ✅ Full | ❌ N/A | Perfect |
+| Node.js 18.17+ | ✅ Full | ✅ Full | ❌ N/A | Perfect |
 | Deno | ✅ Full | ❌ N/A | ❌ N/A | Perfect |
 | Bun | ✅ Full | ✅ Full | ❌ N/A | Perfect |
-| Chrome/Firefox | ✅ Full | ❌ N/A | ✅ Full | Perfect |
-| Edge/Safari | ✅ Full | ❌ N/A | ✅ Full | Perfect |
+| Microsoft Edge | ✅ Full | ❌ N/A | ✅ Full | Works |
+| Chrome/Firefox/Safari | ❌ Blocked | ❌ N/A | ❌ Blocked | See note below |
+
+> **Note**: As of v1.4.0, direct browser usage only works in Microsoft Edge. Other browsers cannot set the required custom WebSocket headers. Use a server-side environment for reliable TTS synthesis.
 
 ### Key Improvements
 

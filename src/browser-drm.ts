@@ -58,4 +58,26 @@ export class BrowserDRM {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
   }
+
+  /**
+   * Generates a random MUID (Machine Unique Identifier).
+   * @returns Uppercase 32-character hex string
+   */
+  static generateMuid(): string {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+
+  /**
+   * Returns a copy of the given headers with a MUID cookie added.
+   * @param headers - The original headers
+   * @returns New headers object with Cookie header containing the MUID
+   */
+  static headersWithMuid(headers: Record<string, string>): Record<string, string> {
+    return {
+      ...headers,
+      Cookie: `muid=${BrowserDRM.generateMuid()};`,
+    };
+  }
 } 
