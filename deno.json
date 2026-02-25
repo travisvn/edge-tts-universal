@@ -2,7 +2,7 @@
   "name": "@edge-tts/universal",
   "version": "1.4.0",
   "description": "Universal text-to-speech library using Microsoft Edge's online TTS service. Works in Node.js and browsers WITHOUT needing Microsoft Edge, Windows, or an API key",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-or-later",
   "author": "Travis <contact@travis.engineer>",
   "homepage": "https://github.com/travisvn/edge-tts-universal",
   "repository": {
