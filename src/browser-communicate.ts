@@ -104,7 +104,7 @@ function browserGetHeadersAndDataFromBinary(message: Uint8Array): [{ [key: strin
 
 function browserSplitTextByByteLength(text: string, byteLength: number): Generator<Uint8Array> {
   return (function* () {
-    let buffer = new TextEncoder().encode(text);
+    let buffer = new TextEncoder().encode(text.trim());
 
     if (byteLength <= 0) {
       throw new Error("byteLength must be greater than 0");

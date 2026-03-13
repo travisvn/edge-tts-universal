@@ -112,7 +112,10 @@ function _adjustSplitPointForXmlEntity(text: Buffer, splitAt: number): number {
  * @throws {ValueError} If byteLength is too small or text has invalid structure
  */
 export function* splitTextByByteLength(text: string | Buffer, byteLength: number): Generator<Buffer> {
-  let buffer = Buffer.isBuffer(text) ? text : Buffer.from(text, 'utf-8');
+  let buffer = Buffer.from(
+    (Buffer.isBuffer(text) ? text.toString('utf-8') : text).trim(),
+    'utf-8'
+  );
 
   if (byteLength <= 0) {
     throw new ValueError("byteLength must be greater than 0");

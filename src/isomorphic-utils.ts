@@ -149,7 +149,7 @@ export function mkssml(tc: TTSConfig, escapedText: string | Uint8Array): string 
  */
 export function splitTextByByteLength(text: string, byteLength: number): string[] {
   const encoder = new TextEncoder();
-  const words = text.split(/(\s+)/); // Split by whitespace but keep delimiters
+  const words = text.trim().split(/(\s+)/); // Split by whitespace but keep delimiters
   const chunks: string[] = [];
   let currentChunk = "";
 
