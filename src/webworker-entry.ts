@@ -41,7 +41,7 @@
 
 export {
   IsomorphicCommunicate as Communicate,
-  IsomorphicCommunicateOptions as CommunicateOptions
+  type IsomorphicCommunicateOptions as CommunicateOptions
 } from './isomorphic-communicate';
 
 export {
@@ -56,9 +56,9 @@ export { IsomorphicDRM as DRM } from './isomorphic-drm';
 // Import everything from isomorphic-simple to avoid Node.js dependencies
 export {
   IsomorphicEdgeTTS as EdgeTTS,
-  ProsodyOptions,
-  WordBoundary,
-  SynthesisResult,
+  type ProsodyOptions,
+  type WordBoundary,
+  type SynthesisResult,
   createVTT,
   createSRT
 } from './isomorphic-simple';
