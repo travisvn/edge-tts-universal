@@ -141,6 +141,7 @@ export function* splitTextByByteLength(text: string | Buffer, byteLength: number
     }
 
     buffer = buffer.subarray(splitAt);
+    buffer = Buffer.from(buffer.toString('utf-8').trim(), 'utf-8');
   }
 
   const remainingChunk = buffer.toString('utf-8').trim();
